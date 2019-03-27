@@ -8,10 +8,11 @@ import { AngularFireStorageModule, AngularFireStorage } from '@angular/fire/stor
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './/app-routing.module';
+import { NgxLoadingModule } from 'ngx-loading';
+
 //componets imports
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { LoginPageComponent } from './login-page/login-page.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
@@ -19,7 +20,6 @@ import { DashboardComponent } from './dashboard/dashboard.component';
   declarations: [
     AppComponent,
     HomeComponent,
-    LoginPageComponent,
     RegisterPageComponent,
     DashboardComponent
   ],
@@ -31,7 +31,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireStorageModule,
-    AngularFireAuthModule
+    AngularFireAuthModule,
+    NgxLoadingModule.forRoot({})
   ],
   providers: [],
   bootstrap: [AppComponent]

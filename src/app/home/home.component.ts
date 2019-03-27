@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {FirebaseService} from '../Services/firebase.service'
 import { Observable } from 'rxjs';
-import { visitRootRenderNodes } from '@angular/core/src/view/util';
 import {Router} from '@angular/router';
 //import { FormGroup, FormBuilder, Validators, EmailValidator } from '@angular/forms';
 
@@ -14,26 +13,49 @@ export class HomeComponent implements OnInit {
 
   item:Observable<any>;
   itemRef;
-  auth_user;
   error_message;
+  loading = false;
+  no_data = true;
 
   private email='';
   private password='';
-  private wrong_credential = false;
+  private carplate = "";
+
   constructor(private firebase: FirebaseService, private route:Router) { }
 
   ngOnInit() {
     //this.firebase.login('chuancane@yahoo.com.my','qwert123');
 
-    this.itemRef = this.firebase.db.object('access_log/2019_3_24');
+    this.itemRef = this.firebase.db.object('access_log');
     this.itemRef.snapshotChanges().subscribe(action => {
       console.log(action.type);
       console.log(action.key)
       console.log(action.payload.val())
     });
+ 
+  }
+
+   payment_as_guest(){
+    this.loading= true;
+    this.firebase.search_active_parking(this.carplate).then(
+      res=>{ console.log(res)
+        console.log(res["carplate"])
+        if(res!= {} && res["carplate"] == this.carplate){
+          this.loading = false;
+          this.no_data = true;
+          this.route.navigateByUrl('/payment');
+        } else{
+          this.loading = false;
+          this.no_data = false;
+        }
+       
+      }
+
+    );
   }
 
   user_login(){
+    this.loading = true;
     if(this.email =='' || !this.email.includes("@")){
       this.error_message = "invalid email";
       return;
@@ -43,6 +65,7 @@ export class HomeComponent implements OnInit {
     }
     this.firebase.login(this.email, this.password).then( res=>{
       if (res == "login success"){
+          this.loading= false;
           this.email = "";
           this.password = "";
           console.log("logged in!");
@@ -50,8 +73,7 @@ export class HomeComponent implements OnInit {
           this.route.navigateByUrl("/dashboard")
         } 
         else {
-          this.email = "";
-          this.password = "";
+          this.loading= false;
           this.error_message = "Wrong email or password!";
         }
       }

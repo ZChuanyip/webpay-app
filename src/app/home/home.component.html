@@ -1,13 +1,16 @@
 
 <div class="container">
   <h3 class= "text-center">Pay as guest</h3>
-  <input class="form-control form-control-lg" type="text" placeholder="Enter your car plate here!">
-
+  <input class="form-control form-control-lg" type="text" placeholder="Enter your car plate here!" [(ngModel)]="carplate">
+  
+  <div class="text-danger" [hidden]="no_data">
+      <div>Car plate not found!, please contact 082-1234567</div>
+  </div>
   <div class=py-2></div>
 
   <div class="row mb-2">
     <div class="col text-center">
-      <button type="submit" class="btn btn-primary px-4 m-3 ">Pay Now!</button>
+      <button type="submit" class="btn btn-primary px-4 m-3 " (click)="payment_as_guest()">Pay Now!</button>
     </div>
   </div>
 
@@ -50,3 +53,4 @@
   </div>
 </div>
 
+<ngx-loading [show]="loading"></ngx-loading>
