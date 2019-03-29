@@ -9,20 +9,27 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './/app-routing.module';
 import { NgxLoadingModule } from 'ngx-loading';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatDialogModule, MatFormFieldModule} from '@angular/material';
 
 //componets imports
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { PaymentGuestComponent,ReciptDialogComponent } from './payment-guest/payment-guest.component';
+// import { ReciptDialogComponent } from './recipt-dialog/recipt-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     RegisterPageComponent,
-    DashboardComponent
+    DashboardComponent,
+    PaymentGuestComponent,
+    ReciptDialogComponent
   ],
+  entryComponents: [ReciptDialogComponent],
   imports: [
     BrowserModule,
     FormsModule,
@@ -32,7 +39,10 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     AngularFireDatabaseModule,
     AngularFireStorageModule,
     AngularFireAuthModule,
-    NgxLoadingModule.forRoot({})
+    NgxLoadingModule.forRoot({}),
+    BrowserAnimationsModule,
+    MatDialogModule,
+    MatFormFieldModule
   ],
   providers: [],
   bootstrap: [AppComponent]

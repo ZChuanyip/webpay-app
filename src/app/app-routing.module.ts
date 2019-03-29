@@ -6,13 +6,15 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { PaymentGuestComponent } from './payment-guest/payment-guest.component'
 
 //router setting
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'register', component : RegisterPageComponent },
-  { path: 'dashboard', component: DashboardComponent}
+  { path: 'dashboard', component: DashboardComponent},
+  { path: 'payment', component: PaymentGuestComponent}
 ]
 
 @NgModule({

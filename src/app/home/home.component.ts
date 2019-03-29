@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
       console.log(action.key)
       console.log(action.payload.val())
     });
- 
+    this.firebase.subscribe_parking_rate();
   }
 
    payment_as_guest(){
@@ -58,9 +58,11 @@ export class HomeComponent implements OnInit {
     this.loading = true;
     if(this.email =='' || !this.email.includes("@")){
       this.error_message = "invalid email";
+      this.loading= false;
       return;
     }else if (this.password == "" || this.password.length<6){
       this.error_message = "Invalid password"
+      this.loading= false;
       return
     }
     this.firebase.login(this.email, this.password).then( res=>{

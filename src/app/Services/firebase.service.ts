@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { auth } from 'firebase/app';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { AngularFireDatabase } from '@angular/fire/database';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 
 export interface active_parking{
@@ -27,7 +26,9 @@ export interface userdata{
 })
 
 export class FirebaseService {
-  user_data:userdata;
+  private user_data:userdata;
+  private active_parking_data:active_parking;
+  private parking_rate;
 
   private user = new BehaviorSubject<object>(this.user_data);
 
@@ -39,6 +40,15 @@ export class FirebaseService {
 
   get_user():Observable<any>{
     return this.user.asObservable();
+  }
+
+  get_active_parking(){
+    console.log(this.active_parking_data)
+    return this.active_parking_data;
+  }
+
+  get_parking_rate(){
+    return this.parking_rate;
   }
  
   //======================================User account functions================================================
@@ -128,29 +138,41 @@ export class FirebaseService {
 //========================================= Payment related funtions ===================================================
    search_active_parking(carplate:string):Promise<object>{
     var response:object ;
-    this.db.list('active_parking', ref => ref.orderByChild('carplate').equalTo(carplate)).valueChanges().subscribe(  data => {
-                            if(data.length != 0){
-                               console.log('ww',data)
-                              console.log(data[0]["carplate"])
-                              response =  this.active_parking_data_formater(data);
-                            }else{
-                              response = {}
-                            }
-                          }
-                ) 
+    this.db.object('active_parking/'+carplate).valueChanges().subscribe(  data => {
+      // console.log('ww', data)
+      if (data != undefined || data != null) {
+
+        response = this.active_parking_data_formater(data, carplate);
+        this.active_parking_data = this.active_parking_data_formater(data, carplate);;
+        // console.log(this.active_parking_data)
+      } else {
+        response = {}
+      }
+    }
+    ) 
     return new Promise<string>(resolve=>setTimeout(resolve, 2500)).then( ()=>{ return response})       
   }
 
-  active_parking_data_formater(data):active_parking{
-    return { carplate: data[0]["carplate"],
-            car_color: data[0]["car_color"],
-            car_make: data[0]["car_make"],
-            payment_status: data[0]["payment_status"],
-            timestamp: data[0]["timestamp"]
+  active_parking_data_formater(data, carplate):active_parking{
+    // console.log(data)
+    return { carplate: carplate,
+            car_color: data["car_color"],
+            car_make: data["car_make"],
+            payment_status: data["payment_status"],
+            timestamp: data["timestamp"]
             };
   }
   
+  subscribe_parking_rate(){
+    this.db.object('parking_rate').snapshotChanges().subscribe(data => {
+      console.log(data.payload.val())
+      this.parking_rate = data.payload.val();
+    })
+
+  }
+
   pay_parking_fee(carplate:string, user:string, method:string){
+
 
   }
 }
