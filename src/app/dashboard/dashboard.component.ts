@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,Inject } from '@angular/core';
 import { FirebaseService, userdata } from '../Services/firebase.service'
 import { Router } from '@angular/router';
 import { ParkingFeeCalculationService } from '../Services/parking-fee-calculation.service'
 import { receipt_data } from '../payment-guest/payment-guest.component';
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -31,9 +33,16 @@ export class DashboardComponent implements OnInit {
   };
   user_active_parking = [];
   parking_rate;
+  car_detail:object[] = [];
   loading = false;
+  default_tab = true;
 
-  constructor(private firebase: FirebaseService, private route: Router , private feeCalc:ParkingFeeCalculationService) { }
+  //form binding
+  new_carplate = "";
+  new_carcolor = "";
+  new_carmake = "";
+
+  constructor(private firebase: FirebaseService, private route: Router , private feeCalc:ParkingFeeCalculationService, public dialog: MatDialog) { }
 
   ngOnInit() {
     this.loading = true;
@@ -42,6 +51,15 @@ export class DashboardComponent implements OnInit {
     this.firebase.get_user().subscribe(res => {
       console.log("new update", this.user_data.uid, this.user_data.uid != "");
       this.user_data = res;
+
+      this.car_detail = [];
+      for(var i = 0; i < this.user_data.car_plate.length; i++){
+        this.car_detail.push({
+          car_plate : this.user_data.car_plate[i], 
+          car_make  : this.user_data.car_make[i],
+          car_color : this.user_data.car_color[i]
+        })
+      }
 
       if (this.user_data.uid != "") {
 
@@ -110,12 +128,83 @@ export class DashboardComponent implements OnInit {
     date.setMinutes( date.getMinutes() + 30 );
     this.receipt_detail.exit_time = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + (date.getHours()>12?date.getHours()-12:date.getHours()) + ":" + date.getMinutes()+" "+(date.getHours()>12?"PM":"AM");
     this.receipt_detail.fee = this.user_active_parking[index].fee;
-    this.receipt_detail.payment_status = "successful";
+    this.receipt_detail.payment_status = "Payment successful";
 
     this.firebase.pay_parking_fee(this.receipt_detail, this.user_data.uid, false);
+    this.openDialog(this.receipt_detail, 0 ,false);
 
   }
 
+   // receipt_dialog
+  openDialog(receipt_detail: receipt_data, topup_amount:number, Istopup:boolean): void {
+    this.dialog.open(ReceiptDialogUserComponent, {
+      width: '500px',
+      data: {
+        payment_status: receipt_detail.payment_status,
+        receipt_number: receipt_detail.receipt_number,
+        car_plate: receipt_detail.carplate,
+        fee: receipt_detail.fee,
+        exit_time: receipt_detail.exit_time,
+        balance: "RM " + receipt_detail.balance.toFixed(2),
+        topup_amount: topup_amount,
+        IsTopup: Istopup
+      }
+    });
+  }
+
+  topup(){
+    const dialogRef = this.dialog.open(TopupDialogUserComponent, {
+      width: '600px',
+      data: {
+        uid: this.user_data.uid,
+        balance: this.user_data.balance
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log("topup:",result);
+      this.loading= true;
+      this.user_data.balance = this.user_data.balance+ Number(result);
+      this.firebase.topup_balance(this.user_data.balance, this.user_data.uid);
+      var date = new Date();
+
+      this.receipt_detail={
+        payment_status:"Top Up successful",
+        receipt_number: date.getFullYear() + "" + (date.getMonth() + 1) + "" + date.getDate() + "" + date.getHours() + "" + date.getMinutes() + "" + date.getSeconds()+ this.user_data.uid ,
+        carplate: "",
+        fee:"",
+        exit_time:"",
+        balance: this.user_data.balance
+      };
+      this.loading= false;
+      this.openDialog(this.receipt_detail, result, true);
+      
+    });
+  }
+
+
+  switch_tab(default_view:boolean){
+      this.default_tab = default_view;
+  }
+
+  delete_car(index){
+    this.user_data.car_plate.splice(index, 1);
+    this.user_data.car_color.splice(index, 1);
+    this.user_data.car_make.splice(index, 1);
+    this.firebase.update_car_datail(  this.user_data.car_plate, this.user_data.car_color, this.user_data.car_make, this.user_data.uid);
+  }
+
+  add_car(){
+    if(this.new_carplate != "" || this.new_carplate != null){
+      this.user_data.car_plate.push(this.new_carplate);
+      this.user_data.car_color.push(this.new_carcolor);
+      this.user_data.car_make.push(this.new_carmake);
+      this.firebase.update_car_datail(  this.user_data.car_plate, this.user_data.car_color, this.user_data.car_make, this.user_data.uid);
+      this.new_carplate = "";
+      this.new_carcolor ="";
+      this.new_carmake ="";
+    }
+  }
   //oninit 
   //   for (var i = 0; i < this.user_data.car_plate.length; i++) {
         //     console.log(this.user_data.car_plate[i]);
@@ -152,4 +241,80 @@ export class DashboardComponent implements OnInit {
         //     // );
         //   })
         // }
+}
+
+@Component({
+  selector: 'app-receipt-dialog-user',
+  templateUrl: 'receipt-dialog-user.component.html',
+})
+export class ReceiptDialogUserComponent {
+
+  constructor(
+    public dialogRef: MatDialogRef<ReceiptDialogUserComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: receipt_data) {}
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+  
+  print(): void {
+    window.print();
+  }
+}
+
+@Component({
+  selector: 'app-topup-dialog-user',
+  templateUrl: 'topup-dialog-user.component.html',
+})
+export class TopupDialogUserComponent {
+
+  constructor(
+    public dialogRef: MatDialogRef<TopupDialogUserComponent>,
+    @Inject(MAT_DIALOG_DATA) public data:userdata) {}
+  
+  topup_amount=10;
+  card ="";
+  exp_date="";
+  cvv="";
+
+  valid_amount = true;
+  valid_card = true;
+  valid_date = true;
+  valid_cvv = true;
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+  validate_amount(){
+    if(this.topup_amount<10){
+      this.valid_amount = false;
+    } else{
+      this.valid_amount = true;
+    }
+  }
+
+  validate_card() {
+    console.log(this.card)
+    if (this.card == null || this.card.toString().length < 15) {
+      this.valid_card = false;
+    } else {
+      this.valid_card = true;
+    }
+  }
+
+  validate_date() {
+    if (this.exp_date ==null || this.exp_date.toString().length < 5) {
+      this.valid_date = false;
+    } else {
+      this.valid_date = true;
+    }
+  }
+
+  validate_cvv() {
+    if (this.cvv ==null || this.cvv.toString().length < 3) {
+      this.valid_cvv = false;
+    } else {
+      this.valid_cvv = true;
+    }
+  }
 }

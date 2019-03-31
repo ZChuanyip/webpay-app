@@ -16,9 +16,8 @@ import {MatDialogModule, MatFormFieldModule} from '@angular/material';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { DashboardComponent,ReceiptDialogUserComponent, TopupDialogUserComponent } from './dashboard/dashboard.component';
 import { PaymentGuestComponent,ReciptDialogComponent } from './payment-guest/payment-guest.component';
-// import { ReciptDialogComponent } from './recipt-dialog/recipt-dialog.component';
 
 @NgModule({
   declarations: [
@@ -27,9 +26,15 @@ import { PaymentGuestComponent,ReciptDialogComponent } from './payment-guest/pay
     RegisterPageComponent,
     DashboardComponent,
     PaymentGuestComponent,
-    ReciptDialogComponent
+    ReciptDialogComponent,
+    ReceiptDialogUserComponent,
+    TopupDialogUserComponent
   ],
-  entryComponents: [ReciptDialogComponent],
+  entryComponents: [
+    ReciptDialogComponent, 
+    ReceiptDialogUserComponent,
+    TopupDialogUserComponent
+  ],
   imports: [
     BrowserModule,
     FormsModule,

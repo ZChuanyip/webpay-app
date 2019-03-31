@@ -1,0 +1,65 @@
+<h1 mat-dialog-title class="text-center font-weight-bold">Payment {{data.payment_status}}</h1>
+<div mat-dialog-content>
+    <h5 class="font-weight-bold">Reciept</h5>
+    <div class="row">
+        <div class="col-4">
+            <p>Receipt number</p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold">: {{data.receipt_number}}</span>
+        </div>
+    </div>
+
+    <div [hidden]="data.IsTopup">
+        <div class="row">
+            <div class="col-4">
+                <p>Car plate </p>
+            </div>
+            <div class="col-6">
+                <span class="font-weight-bold">: {{data.car_plate}}</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4">
+                <p> Parking fee </p>
+            </div>
+            <div class="col-6">
+                <span class="font-weight-bold">: {{data.fee}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div [hidden]="!data.IsTopup">
+            <div class="col-4">
+                    <p> Topup amount </p>
+                </div>
+                <div class="col-6">
+                    <span class="font-weight-bold">: {{data.topup_amount}}</span>
+                </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <p> Balance </p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold">: {{data.balance}}</span>
+        </div>
+    </div>
+
+    <div [hidden]="data.IsTopup">
+        <div class="row">
+            <div class="col-4">
+                <p> Exit before </p>
+            </div>
+            <div class="col-6">
+                <span class="font-weight-bold">: {{data.exit_time}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div mat-dialog-actions >
+  <button class="btn btn-primary px-3  " mat-button (click)="onNoClick()">close</button>
+  <button class="btn btn-primary px-3 mx-2" mat-button (click) ="print()" cdkFocusInitial>print</button>
+</div>

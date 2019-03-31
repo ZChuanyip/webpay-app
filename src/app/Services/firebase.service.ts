@@ -92,7 +92,6 @@ export class FirebaseService {
 
   async login(email, password):Promise<string>{
 
-   
      var response =  <string> await this.user_auth.auth.signInWithEmailAndPassword(email, password)
         .then(
               user=>{ 
@@ -102,14 +101,15 @@ export class FirebaseService {
                         this.user_data['name'] = data['name'];
                         this.user_data['car_plate']= data['car_plate'];
                         this.user_data['car_color'] = data['car_color'];
+                        this.user_data['car_make'] = data['car_make'];
                         this.user_data['balance'] = data['balance'];
-                        console.log('user lo',this.user_data)
+                        console.log('user lo',this.user_data);
+                        this.set_user(this.user_data);
                       });
                             
                       //var a = this.db.list('active_parking', ref => ref.orderByChild('carplate').equalTo('ABC1255')).valueChanges().subscribe(data => 
                       // console.log('ww',data))
-                      this.set_user(this.user_data);
-                      console.log('here')
+                     
                       return "login success";
                     }
               )
@@ -148,6 +148,15 @@ export class FirebaseService {
     }
   }
 
+  update_car_datail(car_plate:string[], car_color:string[], car_make:string[], uid:string){
+    this.db.object('users/' + uid+"/car_plate").set(car_plate);
+    this.db.object('users/' + uid+"/car_color").set(car_color);
+    this.db.object('users/' + uid+"/car_make").set(car_make);
+  }
+
+  topup_balance(balance:number, uid:string){
+    this.db.object('users/' + uid+"/balance").set(balance);
+  }
 //=========================================User account functions END==================================================
 
 //========================================= Payment related funtions ===================================================
@@ -198,7 +207,7 @@ export class FirebaseService {
     }
     //insert new transactino record
     var date = new Date();
-    this.db.object("transaction_log/"+ date.getMonth() + 1 + "_" + date.getFullYear()+"/" + receipt_data.receipt_number).set(receipt_data);
+    this.db.object("transaction_log/"+ (date.getMonth() + 1) + "_" + date.getFullYear()+"/" + receipt_data.receipt_number).set(receipt_data);
 
   }
 

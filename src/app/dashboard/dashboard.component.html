@@ -1,8 +1,8 @@
 <h5 class="text-center mt-3"> Hi {{user_data.name}} <button type="submit" class="btn btn-primary " (click)="logout()">Log out</button></h5>
 
 
-<div class="border border-primary m-3 p-3">
-    <h5>Payment details</h5>
+<div class="border border-primary my-3 p-3">
+    <h5>Account details</h5>
     <div class="row">
         <div class="col-4">
             <p>Email</p>
@@ -17,30 +17,20 @@
             <p>Balance</p>
         </div>
         <div class="col-6">
-            <span class="font-weight-bold">: RM {{user_data.balance}}</span>
-        </div>
-    </div>
-
-    <!-- <div class="row">
-        <div class="col-4">
-            <p> Fees </p>
-        </div>
-        <div class="col-6">
-            <span class="font-weight-bold">: {{parking_fee}}</span>
+            <span class="font-weight-bold">: RM {{user_data.balance.toFixed(2)}} <button type="submit" class="btn btn-primary " (click)="topup()">Top up</button></span>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-4">
-            <p> Duration</p>
+        <div class="mx-auto">
+            <button type="submit" class="btn btn-primary mt-2 mr-2" (click)="switch_tab(true)">Current Parking</button>
+            <button type="submit" class="btn btn-primary mt-2" (click)="switch_tab(false)">My vehicle</button>
         </div>
-        <div class="col-6">
-            <span class="font-weight-bold">: {{parking_duration}}</span>
-        </div>
-    </div> -->
+    </div>
 </div>
 
-<div class="border border-secondary my-3 p-3">
+<div class="border border-secondary my-3 p-3" [hidden] = "!default_tab">
+    <h5>Current parking</h5>
     <table class="table">
         <thead>
           <tr>
@@ -72,4 +62,56 @@
     </div> -->
 </div>
 
-<ngx-loading [show]="loading"></ngx-loading> -->
+<div class="border border-secondary my-3 p-3" [hidden] = "default_tab">
+    <h5>Registered vehicle details</h5>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Car Plate</th>
+                <th scope="col">Car Colour</th>
+                <th scope="col">Car Make </th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let car of car_detail; let i = index">
+                <td>{{car.car_plate}}</td>
+                <td>{{(car.car_color == ""? "-": car.car_color)}}</td>
+                <td>{{(car.car_make == ""? "-": car.car_make)}}</td>
+                <td>
+                    <button type="submit" class="btn btn-primary " (click)="delete_car(i)">Delete</button>
+                </td>
+            </tr>
+            <td>          
+                <input type="text"  class="form-control"  placeholder="Enter new car plate" [(ngModel)]="new_carplate" required >
+            </td>
+
+            <td> 
+                <input type="text"  class="form-control"  placeholder="car color" [(ngModel)]="new_carcolor"  >
+            </td>
+
+            <td> 
+                <input type="text"  class="form-control"  placeholder="car make" [(ngModel)]="new_carmake"  >
+            </td>
+            
+            <td>
+                <button type="submit" class="btn btn-primary " (click)="add_car()">Add</button>
+            </td>
+            <tr>
+
+            </tr>
+
+        </tbody>
+    </table>
+
+    <!-- <div class="row pt-2">
+            <div class="col text-center">
+                <button type="submit" class="btn btn-primary px-4 " (click)="pay()">Pay</button>
+                <button type="submit" class="btn btn-primary mx-4 px-4 " (click)="back()">Back</button>
+            </div>
+        </div> -->
+</div>
+
+
+
+<ngx-loading [show]="loading"></ngx-loading>

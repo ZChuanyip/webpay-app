@@ -1,0 +1,52 @@
+<h1 mat-dialog-title class="text-center font-weight-bold">Top up balance</h1>
+<div mat-dialog-content>
+    <div class="row">
+        <div class="col-4">
+            <p>Topup amount :</p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold"> <input type="text" class="form-control" placeholder="enter amount(RM)"
+                    [(ngModel)]="topup_amount" (change)="validate_amount()" required></span>
+             <div class="text-danger" [hidden]="valid_amount">Minimun of RM10 topup is requried</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <p>Credit card number : </p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold"> <input type="text" class="form-control" placeholder="XXXX XXXX XXXX XXXX"
+                    [(ngModel)]="card" (change)="validate_card()" required></span>
+            <div class="text-danger" [hidden]="valid_card">Please enter a valid credit/debit card number</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <p> Expire date :</p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold"><input type="text" class="form-control" placeholder="MM/YY"
+                    [(ngModel)]="exp_date" (change)="validate_date()" required></span>
+            <div class="text-danger" [hidden]="valid_date">Please enter exp date using MM/YY format</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <p> CVV :</p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold"> <input type="text" class="form-control" placeholder="XXX" [(ngModel)]="cvv"
+                    (change)="validate_cvv()" required></span>
+            <div class="text-danger" [hidden]="valid_cvv">Please enter a valid CVV</div>
+        </div>
+    </div>
+
+
+</div>
+<div mat-dialog-actions>
+    <button type="submit" class="btn btn-primary px-3  " mat-button [mat-dialog-close]="topup_amount">Confirm</button>
+    <button class="btn btn-primary px-3 mx-2" mat-button (click)="onNoClick()" cdkFocusInitial>Cancel</button>
+</div>
