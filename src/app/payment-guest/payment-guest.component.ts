@@ -8,9 +8,10 @@ import {Router} from '@angular/router';
 export interface receipt_data {
   payment_status:string;
   receipt_number: string;
-  car_plate: string;
+  carplate: string;
   fee:string;
   exit_time:string;
+  balance:number;
 }
 
 
@@ -22,6 +23,14 @@ export interface receipt_data {
 export class PaymentGuestComponent implements OnInit {
 
   private payment_detail: active_parking;
+  private receipt_detail: receipt_data = {
+    payment_status: "",
+    receipt_number: "",
+    carplate: "",
+    fee: "",
+    exit_time: "",
+    balance: 0
+  };
   entry_time;
   parking_fee;
   parking_duration;
@@ -39,10 +48,12 @@ export class PaymentGuestComponent implements OnInit {
   valid_card = true;
   valid_date = true;
   valid_cvv = true;
+  loading = false;
 
   constructor(private firebase: FirebaseService, private fee_calculate: ParkingFeeCalculationService, public dialog: MatDialog, private route:Router) { }
 
   ngOnInit() {
+    this.loading = true;
     this.payment_detail = this.firebase.get_active_parking();
     this.parking_rate = this.firebase.get_parking_rate();
 
@@ -53,7 +64,7 @@ export class PaymentGuestComponent implements OnInit {
     var fees_duration = this.fee_calculate.calculate_parking_fee(this.entry_date, this.current_time, this.parking_rate);
     this.parking_fee = fees_duration[0];
     this.parking_duration = fees_duration[1];
-
+    this.loading = false;
     setTimeout(() => {
       this.current_time = new Date()
       console.log(this.current_time);
@@ -65,11 +76,28 @@ export class PaymentGuestComponent implements OnInit {
   }
 
   pay() {
-    var transaction_number = this.current_time.getDate() + "" + this.current_time.getMonth() + 1 + "" + this.current_time.getFullYear() + "" + this.current_time.getHours() + "" + this.current_time.getMinutes() + "" + this.current_time.getSeconds();
-    var exit_before = new Date();
-    exit_before.setMinutes( exit_before.getMinutes() + 30 );
+    this.loading = true;
+    //validate all field before submit
+    this.validate_card();
+    this.validate_cvv();
+    this.validate_date();
+    if(this.valid_card == false || this.valid_cvv == false || this.valid_date == false){
+      this.loading = false;
+      return;
+    }
+    console.log(this.current_time,this.current_time.getDate())
+    this.receipt_detail.receipt_number= this.current_time.getFullYear() + "" + (this.current_time.getMonth() + 1) + "" + this.current_time.getDate() + "" + this.current_time.getHours() + "" + this.current_time.getMinutes() + "" + this.current_time.getSeconds()+ this.payment_detail.carplate;
+    var date = new Date();
+    date.setMinutes( date.getMinutes() + 30 );
+    this.receipt_detail.exit_time = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + (date.getHours()>12?date.getHours()-12:date.getHours()) + ":" + date.getMinutes()+" "+(date.getHours()>12?"PM":"AM");
+    this.receipt_detail.carplate = this.payment_detail.carplate;
+    this.receipt_detail.fee = this.parking_fee;
+    this.receipt_detail.payment_status = "successful";
     //push data to transaction and update active parking
-     this.openDialog("Payment Successful!", transaction_number, this.payment_detail.carplate, this.parking_fee, exit_before );
+    this.firebase.pay_parking_fee(this.receipt_detail, "", true);
+
+    this.loading = false;
+    this.openDialog("Payment"+this.receipt_detail.payment_status+"!",  this.receipt_detail.receipt_number, this.receipt_detail.carplate, this.receipt_detail.fee, this.receipt_detail.exit_time );
    }
 
   // receipt_dialog
@@ -81,7 +109,8 @@ export class PaymentGuestComponent implements OnInit {
         receipt_number: receipt_no ,
         car_plate: carplate ,
         fee: parkingfee,
-        exit_time: exitTime}
+        exit_time: exitTime,
+      }
     });
 
      dialogRef.afterClosed().subscribe(result => {
@@ -92,7 +121,8 @@ export class PaymentGuestComponent implements OnInit {
   
 
   validate_card() {
-    if (this.card_number.toString().length < 15) {
+    console.log(this.card_number)
+    if (this.card_number == null || this.card_number.toString().length < 15) {
       this.valid_card = false;
     } else {
       this.valid_card = true;
@@ -100,7 +130,7 @@ export class PaymentGuestComponent implements OnInit {
   }
 
   validate_date() {
-    if (this.exp_date.toString().length < 5) {
+    if (this.exp_date ==null || this.exp_date.toString().length < 5) {
       this.valid_date = false;
     } else {
       this.valid_date = true;
@@ -108,11 +138,15 @@ export class PaymentGuestComponent implements OnInit {
   }
 
   validate_cvv() {
-    if (this.cvv.toString().length < 3) {
+    if (this.cvv ==null || this.cvv.toString().length < 3) {
       this.valid_cvv = false;
     } else {
       this.valid_cvv = true;
     }
+  }
+
+  back(){
+    this.route.navigateByUrl("/home");
   }
 
 }
@@ -132,5 +166,9 @@ export class ReciptDialogComponent {
 
   onNoClick(): void {
     this.dialogRef.close();
+  }
+  
+  print(): void {
+    window.print();
   }
 }

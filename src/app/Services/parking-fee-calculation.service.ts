@@ -17,6 +17,15 @@ export class ParkingFeeCalculationService {
     
     var parking_fee ="RM "+(hoursDifference*parking_rate).toFixed(2);
     var parking_duration = hoursDifference+" hours " + minutesDifference + " minutes" ;
-    return [parking_fee, parking_duration]
+    return [parking_fee, parking_duration, (hoursDifference*parking_rate)]
+  }
+
+  return_fee(entry_time, current_time, parking_rate):number{
+    var diff = (current_time.getTime())-(entry_time.getTime());
+ 
+    var hoursDifference = Math.floor(diff/1000/60/60);
+    diff -= hoursDifference*1000*60*60
+
+    return (hoursDifference*parking_rate);
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { receipt_data } from '../payment-guest/payment-guest.component';
 
 
 export interface active_parking{
@@ -10,15 +11,17 @@ export interface active_parking{
   car_make:string
   payment_status:string
   timestamp:string
+  exit_before
 }
 
 export interface userdata{
     uid : string
     email: string
     name:string
-    car_plate:[string]
-    car_make:[string]
-    car_color:[string]
+    car_plate:string[]
+    car_make:string[]
+    car_color:string[]
+    balance:number
 }
 
 @Injectable({
@@ -26,7 +29,15 @@ export interface userdata{
 })
 
 export class FirebaseService {
-  private user_data:userdata;
+  user_data: userdata ={
+    name: "",
+    uid: "",
+    email: "",
+    car_plate:[""],
+    car_color:[""],
+    car_make:[""],
+    balance:0
+  };
   private active_parking_data:active_parking;
   private parking_rate;
 
@@ -63,6 +74,7 @@ export class FirebaseService {
         this.user_data['car_plate']= [car_plate];
         this.user_data['car_make']=[car_make]
         this.user_data['car_color'] = [car_color];
+        this.user_data['balance'] = 0;
         this.db.object('users/'+user.user.uid).set(this.user_data);
         this.set_user(this.user_data); 
         return"register successful!";
@@ -75,7 +87,7 @@ export class FirebaseService {
         return this.error_handler(error);
       }
     )
-    return new Promise<string>(resolve=>setTimeout(resolve, 5000)).then( ()=>{ return response })
+    return new Promise<string>(resolve=>setTimeout(resolve, 2000)).then( ()=>{ return response })
   }
 
   async login(email, password):Promise<string>{
@@ -85,13 +97,14 @@ export class FirebaseService {
         .then(
               user=>{ 
                       this.db.object('users/'+user.user.uid).valueChanges().subscribe(data=>{
-                      this.user_data['uid'] = user.user.uid;
-                      this.user_data['email'] = data['email'];
-                      this.user_data['name'] = data['name'];
-                      this.user_data['car_plate']= data['car_plate'];
-                      this.user_data['car_color'] = data['car_color'];
-                      console.log('user lo',this.user_data)
-                    });
+                        this.user_data['uid'] = user.user.uid;
+                        this.user_data['email'] = data['email'];
+                        this.user_data['name'] = data['name'];
+                        this.user_data['car_plate']= data['car_plate'];
+                        this.user_data['car_color'] = data['car_color'];
+                        this.user_data['balance'] = data['balance'];
+                        console.log('user lo',this.user_data)
+                      });
                             
                       //var a = this.db.list('active_parking', ref => ref.orderByChild('carplate').equalTo('ABC1255')).valueChanges().subscribe(data => 
                       // console.log('ww',data))
@@ -107,8 +120,8 @@ export class FirebaseService {
                           }
               )
     console.log(response)
-    return response;
-     //return new Promise<string>(resolve=>setTimeout(resolve, 1000)).then( ()=>{ return response })
+    //return response;
+    return new Promise<string>(resolve=>setTimeout(resolve, 1000)).then( ()=>{ return response })
      //return new Promise<string>(resolve=>setTimeout(resolve, 5000)).then( ()=>{ return response})
   }
   
@@ -120,8 +133,10 @@ export class FirebaseService {
                       name:'',
                       car_plate:[''],
                       car_make:[''],
-                      car_color:['']
+                      car_color:[''],
+                      balance: 0
      };
+     this.set_user(this.user_data);
   }
 
   error_handler(err):string{
@@ -136,34 +151,36 @@ export class FirebaseService {
 //=========================================User account functions END==================================================
 
 //========================================= Payment related funtions ===================================================
-   search_active_parking(carplate:string):Promise<object>{
-    var response:object ;
-    this.db.object('active_parking/'+carplate).valueChanges().subscribe(  data => {
-      // console.log('ww', data)
+  search_active_parking(carplate: string): Promise<object> {
+    var response: object;
+    this.db.object('active_parking/' + carplate).valueChanges().subscribe(data => {
+       console.log('ww', data)
       if (data != undefined || data != null) {
 
-        response = this.active_parking_data_formater(data, carplate);
-        this.active_parking_data = this.active_parking_data_formater(data, carplate);;
+        response = this.active_parking_data_formater(data);
+        this.active_parking_data = this.active_parking_data_formater(data);;
         // console.log(this.active_parking_data)
       } else {
         response = {}
       }
     }
-    ) 
-    return new Promise<string>(resolve=>setTimeout(resolve, 2500)).then( ()=>{ return response})       
+    )
+    return new Promise<string>(resolve => setTimeout(resolve, 2000)).then(() => { return response })
   }
 
-  active_parking_data_formater(data, carplate):active_parking{
+  active_parking_data_formater(data): active_parking {
     // console.log(data)
-    return { carplate: carplate,
-            car_color: data["car_color"],
-            car_make: data["car_make"],
-            payment_status: data["payment_status"],
-            timestamp: data["timestamp"]
-            };
+    return {
+      carplate: data["carplate"],
+      car_color: data["car_color"],
+      car_make: data["car_make"],
+      payment_status: data["payment_status"],
+      timestamp: data["timestamp"],
+      exit_before: data["exit_before"]
+    };
   }
-  
-  subscribe_parking_rate(){
+
+  subscribe_parking_rate() {
     this.db.object('parking_rate').snapshotChanges().subscribe(data => {
       console.log(data.payload.val())
       this.parking_rate = data.payload.val();
@@ -171,9 +188,20 @@ export class FirebaseService {
 
   }
 
-  pay_parking_fee(carplate:string, user:string, method:string){
-
+  pay_parking_fee(receipt_data: receipt_data, uuid: string, guest: boolean) {
+    //update active parking
+    console.log(receipt_data)
+    this.db.object('active_parking/' + receipt_data.carplate).update({ payment_status: true, exit_before: receipt_data.exit_time });
+    //update user data if pay via prepaid
+    if (guest == false) {
+      this.db.object('users/' + uuid).update({ balance: receipt_data.balance });
+    }
+    //insert new transactino record
+    var date = new Date();
+    this.db.object("transaction_log/"+ date.getMonth() + 1 + "_" + date.getFullYear()+"/" + receipt_data.receipt_number).set(receipt_data);
 
   }
+
+  
 }
 

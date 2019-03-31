@@ -16,6 +16,8 @@ export class HomeComponent implements OnInit {
   error_message;
   loading = false;
   no_data = true;
+  hide_paid_message = true;
+  exit_time;
 
   private email='';
   private password='';
@@ -26,13 +28,20 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     //this.firebase.login('chuancane@yahoo.com.my','qwert123');
 
-    this.itemRef = this.firebase.db.object('access_log');
-    this.itemRef.snapshotChanges().subscribe(action => {
-      console.log(action.type);
-      console.log(action.key)
-      console.log(action.payload.val())
-    });
+    // this.itemRef = this.firebase.db.object('access_log');
+    // this.itemRef.snapshotChanges().subscribe(action => {
+    //   console.log(action.type);
+    //   console.log(action.key)
+    //   console.log(action.payload.val())
+    // });
     this.firebase.subscribe_parking_rate();
+    //loged in user will not requrie re login
+    this.firebase.get_user().subscribe(res => {
+      console.log(res,res.uid != "")
+      if(res.uid != "" ){
+        this.route.navigateByUrl("dashboard");
+      } 
+    })
   }
 
    payment_as_guest(){
@@ -40,15 +49,23 @@ export class HomeComponent implements OnInit {
     this.firebase.search_active_parking(this.carplate).then(
       res=>{ console.log(res)
         console.log(res["carplate"])
-        if(res!= {} && res["carplate"] == this.carplate){
+        if(res!= {} && res["carplate"] == this.carplate && res["payment_status"] == false){
           this.loading = false;
+          this.hide_paid_message = true;
           this.no_data = true;
           this.route.navigateByUrl('/payment');
-        } else{
+        } else if (res["payment_status"] == true) {
           this.loading = false;
+          this.no_data = true;
+          this.exit_time = new Date(res['exit_before']);
+          console.log()
+          this.hide_paid_message = false;
+         } else {
+          this.loading = false;
+          this.hide_paid_message = true;
           this.no_data = false;
         }
-       
+
       }
 
     );

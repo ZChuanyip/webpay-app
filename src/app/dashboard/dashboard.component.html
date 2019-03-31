@@ -1,3 +1,75 @@
-<p>
-  dashboard works!
-</p>
+<h5 class="text-center mt-3"> Hi {{user_data.name}} <button type="submit" class="btn btn-primary " (click)="logout()">Log out</button></h5>
+
+
+<div class="border border-primary m-3 p-3">
+    <h5>Payment details</h5>
+    <div class="row">
+        <div class="col-4">
+            <p>Email</p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold">: {{user_data.email}}</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <p>Balance</p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold">: RM {{user_data.balance}}</span>
+        </div>
+    </div>
+
+    <!-- <div class="row">
+        <div class="col-4">
+            <p> Fees </p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold">: {{parking_fee}}</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            <p> Duration</p>
+        </div>
+        <div class="col-6">
+            <span class="font-weight-bold">: {{parking_duration}}</span>
+        </div>
+    </div> -->
+</div>
+
+<div class="border border-secondary my-3 p-3">
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Car plate</th>
+            <th scope="col">Entry time</th>
+            <th scope="col">Fee</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor = "let parking of user_active_parking; let i = index">
+            <td>{{parking.carplate}}</td>
+            <td>{{parking.entry_time}}</td>
+            <td>{{parking.fee}}</td>
+            <td>  
+                <button type="submit" class="btn btn-primary " [hidden]= "parking.payment_status" (click)="pay_user(i)">Pay</button>
+                <p class = "text-success" [hidden]= "!parking.payment_status"> PAID </p>
+            </td>
+          </tr>
+        
+        </tbody>
+      </table>
+
+    <!-- <div class="row pt-2">
+        <div class="col text-center">
+            <button type="submit" class="btn btn-primary px-4 " (click)="pay()">Pay</button>
+            <button type="submit" class="btn btn-primary mx-4 px-4 " (click)="back()">Back</button>
+        </div>
+    </div> -->
+</div>
+
+<ngx-loading [show]="loading"></ngx-loading> -->

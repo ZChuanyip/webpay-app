@@ -6,6 +6,9 @@
   <div class="text-danger" [hidden]="no_data">
       <div>Car plate not found!, please contact 082-1234567</div>
   </div>
+  <div class="text-success" [hidden]="hide_paid_message">
+    <div>You had paid your parking fee, please exit before {{exit_time}}</div>
+</div>
   <div class=py-2></div>
 
   <div class="row mb-2">

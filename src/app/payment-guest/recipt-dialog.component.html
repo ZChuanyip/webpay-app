@@ -1,9 +1,43 @@
-<h1 mat-dialog-title>Hi {{data.name}}</h1>
+<h1 mat-dialog-title class="text-center font-weight-bold">{{data.payment_status}}</h1>
 <div mat-dialog-content>
-  <p>What's your favorite animal?</p>
-  
+  <h5 class="font-weight-bold">Reciept</h5>
+  <div class="row">
+      <div class="col-4">
+          <p>Receipt number</p>
+      </div>
+      <div class="col-6">
+          <span class="font-weight-bold">: {{data.receipt_number}}</span>
+      </div>
+  </div>
+
+  <div class="row">
+      <div class="col-4">
+          <p>Car plate </p>
+      </div>
+      <div class="col-6">
+          <span class="font-weight-bold">: {{data.car_plate}}</span>
+      </div>
+  </div>
+
+  <div class="row">
+      <div class="col-4">
+          <p> Parking fee </p>
+      </div>
+      <div class="col-6">
+          <span class="font-weight-bold">: {{data.fee}}</span>
+      </div>
+  </div>
+
+  <div class="row">
+      <div class="col-4">
+          <p> Exit before </p>
+      </div>
+      <div class="col-6">
+          <span class="font-weight-bold">: {{data.exit_time}}</span>
+      </div>
+  </div>
 </div>
-<div mat-dialog-actions>
-  <button class="btn btn-primary px-3  " mat-button (click)="onNoClick()">No Thanks</button>
-  <button class="btn btn-primary px-3 mx-2" mat-button mat-dialog-close cdkFocusInitial>Ok</button>
+<div mat-dialog-actions >
+  <button class="btn btn-primary px-3  " mat-button (click)="onNoClick()">close</button>
+  <button class="btn btn-primary px-3 mx-2" mat-button (click) ="print()" cdkFocusInitial>print</button>
 </div>
