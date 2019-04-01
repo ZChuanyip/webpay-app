@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireStorage } from '@angular/fire/storage'
 import { BehaviorSubject, Observable } from 'rxjs';
 import { receipt_data } from '../payment-guest/payment-guest.component';
-
 
 export interface active_parking{
   carplate:string
@@ -36,14 +36,14 @@ export class FirebaseService {
     car_plate:[""],
     car_color:[""],
     car_make:[""],
-    balance:0
+    balance:0,
   };
   private active_parking_data:active_parking;
   private parking_rate;
-
+  private admin = new BehaviorSubject<string>("");
   private user = new BehaviorSubject<object>(this.user_data);
 
-  constructor(public db: AngularFireDatabase, private user_auth: AngularFireAuth) {}
+  constructor(public db: AngularFireDatabase, private user_auth: AngularFireAuth, private storage: AngularFireStorage) {}
 
   set_user(value:object){
     this.user.next(value);
@@ -51,6 +51,14 @@ export class FirebaseService {
 
   get_user():Observable<any>{
     return this.user.asObservable();
+  }
+
+  set_admin(value:string){
+    this.admin.next(value);
+  }
+
+  get_admin(){
+    return this.admin.asObservable();
   }
 
   get_active_parking(){
@@ -105,12 +113,11 @@ export class FirebaseService {
                         this.user_data['balance'] = data['balance'];
                         console.log('user lo',this.user_data);
                         this.set_user(this.user_data);
-                      });
-                            
-                      //var a = this.db.list('active_parking', ref => ref.orderByChild('carplate').equalTo('ABC1255')).valueChanges().subscribe(data => 
-                      // console.log('ww',data))
-                     
-                      return "login success";
+                        if(data["Admin_hash"]){
+                          this.set_admin(data["Admin_hash"]);
+                        } 
+                      });  
+                      return "login success"
                     }
               )
         .catch( 
@@ -121,7 +128,7 @@ export class FirebaseService {
               )
     console.log(response)
     //return response;
-    return new Promise<string>(resolve=>setTimeout(resolve, 1000)).then( ()=>{ return response })
+    return new Promise<string>(resolve=>setTimeout(resolve, 3000)).then( ()=>{ return response })
      //return new Promise<string>(resolve=>setTimeout(resolve, 5000)).then( ()=>{ return response})
   }
   
@@ -154,8 +161,8 @@ export class FirebaseService {
     this.db.object('users/' + uid+"/car_make").set(car_make);
   }
 
-  topup_balance(balance:number, uid:string){
-    this.db.object('users/' + uid+"/balance").set(balance);
+  reset_password(email){
+    this.user_auth.auth.sendPasswordResetEmail(email);
   }
 //=========================================User account functions END==================================================
 
@@ -211,6 +218,14 @@ export class FirebaseService {
 
   }
 
-  
+ topup_balance(balance:number, uid:string){
+    this.db.object('users/' + uid+"/balance").set(balance);
+  }
+  //===========================Function for admin dashboard ----------------------------
+  get_alert_image(path){
+    const ref = this.storage.ref(path);
+    return ref.getDownloadURL();
+  }
+
 }
 

@@ -92,6 +92,12 @@ export class DashboardComponent implements OnInit {
           this.loading = false;
         })
 
+        this.firebase.get_admin().subscribe( admin =>{
+          if(btoa(this.user_data.uid) == admin){
+            this.route.navigateByUrl("admin/"+ this.user_data.uid);
+          }
+        })
+
       }
     })
     
@@ -294,7 +300,7 @@ export class TopupDialogUserComponent {
   }
 
   validate_card() {
-    console.log(this.card)
+    console.log(this.card);
     if (this.card == null || this.card.toString().length < 15) {
       this.valid_card = false;
     } else {

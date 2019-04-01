@@ -20,32 +20,44 @@ export class RegisterPageComponent implements OnInit {
   valid_name = true;
   error_message = false;
 
-  email:string;
-  password:string;
-  password2:string;
-  name:string;
-  car_pate:string;
+  email:string = "";
+  password:string = "";
+  password2:string = "";
+  name:string = "";
+  car_pate:string = "";
   car_make = '';
   car_color= '';
+  loading = false;
   ngOnInit() {
   }
 
   Register_user(){
-    this.firebase.create_account(this.email, this.password, this.name, this.car_pate,this.car_make, this.car_color).then(
-      res=>{
-        if (res == "register successful!"){
+    this.email_validator();
+    this.password_validator();
+    this.password2_validator();
+    this.name_validator();
+    this.carplate_validator()
+    if (this.valid_email && this.valid_password && this.valid_confirm_password && this.valid_car_plate && this.valid_car_plate) {
+      this.loading = true;
+      this.firebase.create_account(this.email, this.password, this.name, this.car_pate, this.car_make, this.car_color).then(
+        res => {
+          if (res == "register successful!") {
             this.email = "";
             this.password = "";
             console.log("logged in!");
             this.error_message = false;
             alert("account created successful!")
             this.route.navigateByUrl("/dashboard")
-          } 
+          }
           else {
             this.error_message = true;
           }
+          this.loading = false;
         }
-    )
+      )
+    } else{
+        return;
+    }
   }
   email_validator(){
     if(this.email =='' || !this.email.includes("@")){

@@ -83,13 +83,19 @@ export class HomeComponent implements OnInit {
       return
     }
     this.firebase.login(this.email, this.password).then( res=>{
-      if (res == "login success"){
+      console.log(res)
+      if (res == "login success" || res == "ad login"){
           this.loading= false;
           this.email = "";
           this.password = "";
           console.log("logged in!");
           this.error_message = "";
-          this.route.navigateByUrl("/dashboard")
+          if(res == "login success"){
+            this.route.navigateByUrl("/dashboard")
+          } else if (res == "ad login"){
+            this.route.navigateByUrl("/admin/")
+          }
+          
         } 
         else {
           this.loading= false;
@@ -97,12 +103,12 @@ export class HomeComponent implements OnInit {
         }
       }
     )
-   
-     
-        
-    
-   
+
   }
 
+reset_password(){
+  console.log(this.email);
+  this.firebase.reset_password(this.email);
+}
   
 }

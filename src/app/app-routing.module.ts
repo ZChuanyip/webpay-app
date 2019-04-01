@@ -6,7 +6,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { PaymentGuestComponent } from './payment-guest/payment-guest.component'
+import { PaymentGuestComponent } from './payment-guest/payment-guest.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 
 //router setting
 const routes: Routes = [
@@ -14,8 +15,8 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'register', component : RegisterPageComponent },
   { path: 'dashboard', component: DashboardComponent},
-  { path: 'dashboard', component: PaymentGuestComponent, outlet: "dashboard"},
-  { path: 'payment', component: PaymentGuestComponent}
+  { path: 'payment', component: PaymentGuestComponent},
+  { path: 'admin/:validator', component: AdminDashboardComponent }
 ]
 
 @NgModule({

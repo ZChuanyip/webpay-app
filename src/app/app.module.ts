@@ -18,6 +18,7 @@ import { HomeComponent } from './home/home.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
 import { DashboardComponent,ReceiptDialogUserComponent, TopupDialogUserComponent } from './dashboard/dashboard.component';
 import { PaymentGuestComponent,ReciptDialogComponent } from './payment-guest/payment-guest.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { PaymentGuestComponent,ReciptDialogComponent } from './payment-guest/pay
     PaymentGuestComponent,
     ReciptDialogComponent,
     ReceiptDialogUserComponent,
-    TopupDialogUserComponent
+    TopupDialogUserComponent,
+    AdminDashboardComponent
   ],
   entryComponents: [
     ReciptDialogComponent, 

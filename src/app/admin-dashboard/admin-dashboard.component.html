@@ -1,0 +1,64 @@
+<h5 class="text-center mt-3"> Hi {{user_data.name}} <button type="submit" class="btn btn-primary "
+    (click)="logout()">Log out</button></h5>
+<div class="border border-primary my-3 p-3">
+ 
+  <div class="bg-dark pt-1 my-2"></div>
+
+  <div>
+    <h5>Alerts</h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Alert image</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <p class="text-success font-weight-bold ml-2" [hidden]="no_alert">No alert</p>
+      <tbody>
+        <tr *ngFor="let alert_item of alert ; let i = index">
+          <td width="500">
+            <img [src]="alert[i].alertURL | async" height="360" width="480">
+          </td>
+
+          <td>
+            <p class="text-warning font-weight-bold bg-dark">Alert: {{alert[i].error_msg}}</p>
+            <input type="text" class="form-control" placeholder="Enter car plate" [(ngModel)]="carplate[i]" required>
+            <div class="text-danger" [hidden]="valid_carplate[i]">
+              <div>Please enter a valid car plate!</div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2 " (click)="resolve_alert(i)">Resolve</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- <img [src] = "alerturl | async" height="320" width="320"> -->
+  <div>
+    <!-- access log -->
+    <div class="bg-dark pt-1 my-2"></div>
+    <h5>Access_log</h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Access time</th>
+          <th scope="col">Gate</th>
+          <th scope="col">Car plate</th>
+          <th scope="col">Access type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log_item of log ; let i = index">
+          <td>{{log_item.time}}</td>
+          <td>{{log_item.gate}}</td>
+          <td>{{log_item.carplate}}</td>
+          <td>{{log_item.access_type}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<audio #audioOption>
+  <source src='../assets/alert.mp3' type="audio/mp3">
+</audio>
+
+<ngx-loading [show]="loading"></ngx-loading>
