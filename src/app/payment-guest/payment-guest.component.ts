@@ -22,8 +22,8 @@ export interface receipt_data {
 })
 export class PaymentGuestComponent implements OnInit {
 
-  private payment_detail: active_parking;
-  private receipt_detail: receipt_data = {
+  payment_detail: active_parking;
+  protected receipt_detail: receipt_data = {
     payment_status: "",
     receipt_number: "",
     carplate: "",
@@ -162,7 +162,7 @@ export class ReciptDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<ReciptDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: receipt_data) {}
+    @Inject(MAT_DIALOG_DATA) public data) {}
 
   onNoClick(): void {
     this.dialogRef.close();

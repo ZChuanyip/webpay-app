@@ -19,9 +19,9 @@ export class HomeComponent implements OnInit {
   hide_paid_message = true;
   exit_time;
 
-  private email='';
-  private password='';
-  private carplate = "";
+  email='';
+  password='';
+  carplate = "";
 
   constructor(private firebase: FirebaseService, private route:Router) { }
 

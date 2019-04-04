@@ -1,6 +1,22 @@
 {
   "rules": {
     ".read": "auth != null",
-    ".write": "auth != null"
+    ".write": "auth != null",
+    "access_log":{
+      ".read": "auth != null",
+      ".write": true
+    },
+    "active_parking":{
+      ".read":true,
+      ".write":true
+    },
+    "transaction_log":{
+      ".read": "auth != null",
+      ".write":true
+    },
+    "parking_rate":{
+      ".read":true,
+      ".write":"auth != null"
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit,ElementRef, ViewChild } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import { FirebaseService, userdata } from '../Services/firebase.service'
+import { delay } from 'q';
 
 
 @Component({
@@ -79,8 +80,11 @@ export class AdminDashboardComponent implements OnInit {
     var date = new Date();
     this.today = date.getFullYear()+"_"+(date.getMonth()+1)+"_"+date.getDate();
     console.log(this.today)
-    this.firebase.db.list('access_log/'+this.today).valueChanges().subscribe(log =>{
+    this.firebase.db.list('access_log/'+this.today,  ref => ref.orderByChild("time").limitToFirst(10)).valueChanges().subscribe(log =>{
       this.log= log;
+      this.log = this.bubble_sort(this.log);
+      console.log(this.log,log, log[0]['time']< log[1]['time'])
+     
     })
   }
 
@@ -115,4 +119,42 @@ export class AdminDashboardComponent implements OnInit {
     return new Promise( resolve => setTimeout(resolve, ms) );
   }
 
+  image_reload(index){
+    this.delay(1000);
+    this.alert[index].alertURL = this.alert[index].alertURL + "#"
+  }
+
+
+  bubble_sort(array) {
+    // Use toUpperCase() to ignore character casing
+    // for (var i = array.length - 1; i >= 0; i--) {
+    //   for (var j = 1; j <= i; j++) {
+    //     console.log(Number(array[j-1]['time']), array[j]['time'],(array[j - 1]['time'] > array[j]['time']));
+    //     console.log(Number(array[j]['time'].replace(/\:/g, '')))
+    //     if (Number(array[j-1]['time'].replace(/\:/g, '')) > Number(array[j]['time'].replace(/\:/g, ''))) {
+    //       var temp = array[j - 1];
+    //       array[j - 1] = array[j];
+    //       array[j] = temp
+    //       console.log('swapping');
+    //     }
+    //   }
+    // }
+
+    var length = array.length;
+    //Number of passes
+    for (var i = 0; i < length; i++) { 
+        //Notice that j < (length - i)
+        for (var j = 0; j < (length - i - 1); j++) { 
+            //Compare the adjacent positions
+            console.log(Number(array[j]['time'].replace(/\:/g, '')), Number(array[j+1]['time'].replace(/\:/g, '')), Number(array[j]['time'].replace(/\:/g, '')) < Number(array[j+1]['time'].replace(/\:/g, '')))
+            if(Number(array[j]['time'].replace(/\:/g, '')) < Number(array[j+1]['time'].replace(/\:/g, ''))) {
+                //Swap the numbers
+                var tmp = array[j];  //Temporary variable to hold the current number
+                array[j] = array[j+1]; //Replace current number with adjacent number
+                array[j+1] = tmp; //Replace adjacent number with current number
+            }
+        }        
+    }
+    return array;
+  }
 }

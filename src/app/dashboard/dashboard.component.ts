@@ -51,42 +51,46 @@ export class DashboardComponent implements OnInit {
     this.firebase.get_user().subscribe(res => {
       console.log("new update", this.user_data.uid, this.user_data.uid != "");
       this.user_data = res;
-
-      this.car_detail = [];
-      for(var i = 0; i < this.user_data.car_plate.length; i++){
-        this.car_detail.push({
-          car_plate : this.user_data.car_plate[i], 
-          car_make  : this.user_data.car_make[i],
-          car_color : this.user_data.car_color[i]
-        })
+      console.log(this.user_data ,this.user_data.car_plate != undefined)
+      if (res.car_plate != undefined || res.car_plate != "undefined") {
+        this.car_detail = [];
+        for (var i = 0; i < this.user_data.car_plate.length; i++) {
+          this.car_detail.push({
+            car_plate: this.user_data.car_plate[i],
+            car_make: (this.user_data.car_make == undefined? "": this.user_data.car_make[i]),
+            car_color: (this.user_data.car_color == undefined? "": this.user_data.car_color[i])
+          })
+        }
       }
-
+     
       if (this.user_data.uid != "") {
 
         this.firebase.db.object('active_parking/').valueChanges().subscribe(data => {
           console.log('ww', data)
           this.user_active_parking = []
-          for (var i = 0; i < this.user_data.car_plate.length; i++) {
-            if (data[this.user_data.car_plate[i]] != undefined || data[this.user_data.car_plate[i]] != null) {
-              //real time update on parking status
-              //new record found
-              this.user_active_parking.push(this.firebase.active_parking_data_formater(data[this.user_data.car_plate[i]]));
+          if (this.user_data.car_plate != undefined || this.user_data.car_plate.length != undefined) {
+            for (var i = 0; i < this.user_data.car_plate.length; i++) {
+              if (data[this.user_data.car_plate[i]] != undefined || data[this.user_data.car_plate[i]] != null) {
+                //real time update on parking status
+                //new record found
+                this.user_active_parking.push(this.firebase.active_parking_data_formater(data[this.user_data.car_plate[i]]));
 
-              var date = new Date(this.user_active_parking[this.user_active_parking.length-1]["timestamp"]*1000);
-              var current_date = new Date();
-              this.user_active_parking[this.user_active_parking.length-1].entry_time = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + (date.getHours()>12?date.getHours()-12:date.getHours()) + ":" + date.getMinutes()+" "+(date.getHours()>12?"PM":"AM");
-              var fee_duratiopn = this.feeCalc.calculate_parking_fee(date, current_date, this.parking_rate);
-              this.user_active_parking[this.user_active_parking.length-1].fee = fee_duratiopn[0]+" ("+ fee_duratiopn[1]+")"; 
-              // if (this.user_active_parking.find(obj => { return obj.carplate == data[this.user_data.car_plate[i]]["carplate"] }) == undefined) {
-              //   this.user_active_parking.push(this.firebase.active_parking_data_formater(data[this.user_data.car_plate[i]]));
-              //   this.index = this.user_active_parking.length - 1;
-              // } else {
-              //   //update on old record
-              //   this.index = this.user_active_parking.findIndex(obj => { return obj.carplate == data[this.user_data.car_plate[i]]["carplate"] });
-              //   console.log(this.index);
-              //   this.user_active_parking[this.index] = this.firebase.active_parking_data_formater(data[this.user_data.car_plate[i]]);
-              // }
-              //console.log("new:", res)
+                var date = new Date(this.user_active_parking[this.user_active_parking.length - 1]["timestamp"] * 1000);
+                var current_date = new Date();
+                this.user_active_parking[this.user_active_parking.length - 1].entry_time = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + (date.getHours() > 12 ? date.getHours() - 12 : date.getHours()) + ":" + date.getMinutes() + " " + (date.getHours() > 12 ? "PM" : "AM");
+                var fee_duratiopn = this.feeCalc.calculate_parking_fee(date, current_date, this.parking_rate);
+                this.user_active_parking[this.user_active_parking.length - 1].fee = fee_duratiopn[0] + " (" + fee_duratiopn[1] + ")";
+                // if (this.user_active_parking.find(obj => { return obj.carplate == data[this.user_data.car_plate[i]]["carplate"] }) == undefined) {
+                //   this.user_active_parking.push(this.firebase.active_parking_data_formater(data[this.user_data.car_plate[i]]));
+                //   this.index = this.user_active_parking.length - 1;
+                // } else {
+                //   //update on old record
+                //   this.index = this.user_active_parking.findIndex(obj => { return obj.carplate == data[this.user_data.car_plate[i]]["carplate"] });
+                //   console.log(this.index);
+                //   this.user_active_parking[this.index] = this.firebase.active_parking_data_formater(data[this.user_data.car_plate[i]]);
+                // }
+                //console.log("new:", res)
+              }
             }
           }
           this.loading = false;
@@ -144,7 +148,7 @@ export class DashboardComponent implements OnInit {
    // receipt_dialog
   openDialog(receipt_detail: receipt_data, topup_amount:number, Istopup:boolean): void {
     this.dialog.open(ReceiptDialogUserComponent, {
-      width: '500px',
+      width: '800px',
       data: {
         payment_status: receipt_detail.payment_status,
         receipt_number: receipt_detail.receipt_number,
@@ -160,7 +164,7 @@ export class DashboardComponent implements OnInit {
 
   topup(){
     const dialogRef = this.dialog.open(TopupDialogUserComponent, {
-      width: '600px',
+      width: '800px',
       data: {
         uid: this.user_data.uid,
         balance: this.user_data.balance
@@ -194,17 +198,21 @@ export class DashboardComponent implements OnInit {
   }
 
   delete_car(index){
-    this.user_data.car_plate.splice(index, 1);
-    this.user_data.car_color.splice(index, 1);
-    this.user_data.car_make.splice(index, 1);
+    ( this.user_data.car_plate == undefined? null:  this.user_data.car_plate.splice(index, 1));
+    ( this.user_data.car_color == undefined? null:  this.user_data.car_color.splice(index, 1));
+    ( this.user_data.car_make == undefined? null:  this.user_data.car_make.splice(index, 1));
+    // this.user_data.car_plate.splice(index, 1);
+    // this.user_data.car_color.splice(index, 1);
+    // this.user_data.car_make.splice(index, 1);
+    console.log(this.user_data.car_plate, this.user_data.car_color,this.user_data.car_make)
     this.firebase.update_car_datail(  this.user_data.car_plate, this.user_data.car_color, this.user_data.car_make, this.user_data.uid);
   }
 
   add_car(){
     if(this.new_carplate != "" || this.new_carplate != null){
-      this.user_data.car_plate.push(this.new_carplate);
-      this.user_data.car_color.push(this.new_carcolor);
-      this.user_data.car_make.push(this.new_carmake);
+      ( this.user_data.car_plate == undefined? [this.new_carplate]: this.user_data.car_plate.push(this.new_carplate));
+      ( this.user_data.car_color == undefined? [this.new_carcolor]: this.user_data.car_color.push(this.new_carcolor));
+      ( this.user_data.car_make == undefined? [this.new_carmake]: this.user_data.car_make.push(this.new_carmake));
       this.firebase.update_car_datail(  this.user_data.car_plate, this.user_data.car_color, this.user_data.car_make, this.user_data.uid);
       this.new_carplate = "";
       this.new_carcolor ="";
@@ -257,7 +265,7 @@ export class ReceiptDialogUserComponent {
 
   constructor(
     public dialogRef: MatDialogRef<ReceiptDialogUserComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: receipt_data) {}
+    @Inject(MAT_DIALOG_DATA) public data) {}
 
   onNoClick(): void {
     this.dialogRef.close();

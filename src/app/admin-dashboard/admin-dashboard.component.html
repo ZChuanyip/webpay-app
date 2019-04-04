@@ -17,7 +17,7 @@
       <tbody>
         <tr *ngFor="let alert_item of alert ; let i = index">
           <td width="500">
-            <img [src]="alert[i].alertURL | async" height="360" width="480">
+            <img [src]="alert[i].alertURL | async" (onerror)= "image_reload(i)" height="360" width="480">
           </td>
 
           <td>
