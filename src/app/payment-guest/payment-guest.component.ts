@@ -92,7 +92,7 @@ export class PaymentGuestComponent implements OnInit {
     this.receipt_detail.exit_time = date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + (date.getHours()>12?date.getHours()-12:date.getHours()) + ":" + date.getMinutes()+" "+(date.getHours()>12?"PM":"AM");
     this.receipt_detail.carplate = this.payment_detail.carplate;
     this.receipt_detail.fee = this.parking_fee;
-    this.receipt_detail.payment_status = "successful";
+    this.receipt_detail.payment_status = " successful";
     //push data to transaction and update active parking
     this.firebase.pay_parking_fee(this.receipt_detail, "", true);
 
