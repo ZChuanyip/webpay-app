@@ -29,7 +29,7 @@ export class DashboardComponent implements OnInit {
     carplate: "",
     fee:"",
     exit_time:"",
-    balance:0
+    balance:0,
   };
   user_active_parking = [];
   parking_rate;
@@ -184,7 +184,8 @@ export class DashboardComponent implements OnInit {
         carplate: "",
         fee:"",
         exit_time:"",
-        balance: this.user_data.balance
+        balance: this.user_data.balance,
+        fee_number: 0
       };
       this.loading= false;
       this.openDialog(this.receipt_detail, result, true);
@@ -210,7 +211,7 @@ export class DashboardComponent implements OnInit {
 
   add_car(){
     if(this.new_carplate != "" || this.new_carplate != null){
-      ( this.user_data.car_plate == undefined? [this.new_carplate]: this.user_data.car_plate.push(this.new_carplate));
+      ( this.user_data.car_plate == undefined? [this.new_carplate  ]: this.user_data.car_plate.push(this.new_carplate.toUpperCase()));
       ( this.user_data.car_color == undefined? [this.new_carcolor]: this.user_data.car_color.push(this.new_carcolor));
       ( this.user_data.car_make == undefined? [this.new_carmake]: this.user_data.car_make.push(this.new_carmake));
       this.firebase.update_car_datail(  this.user_data.car_plate, this.user_data.car_color, this.user_data.car_make, this.user_data.uid);

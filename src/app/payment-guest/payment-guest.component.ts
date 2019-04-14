@@ -11,7 +11,7 @@ export interface receipt_data {
   carplate: string;
   fee:string;
   exit_time:string;
-  balance:number;
+  balance:number
 }
 
 
@@ -49,6 +49,7 @@ export class PaymentGuestComponent implements OnInit {
   valid_date = true;
   valid_cvv = true;
   loading = false;
+  fees_duration=[];
 
   constructor(private firebase: FirebaseService, private fee_calculate: ParkingFeeCalculationService, public dialog: MatDialog, private route:Router) { }
 
@@ -61,16 +62,16 @@ export class PaymentGuestComponent implements OnInit {
     this.entry_time = this.entry_date.getDate() + "/" + this.entry_date.getMonth() + 1 + "/" + this.entry_date.getFullYear() + "  " + this.entry_date.getHours() + ":" + this.entry_date.getMinutes() + ":" + this.entry_date.getSeconds();
     this.current_time = new Date()
     console.log(this.current_time)
-    var fees_duration = this.fee_calculate.calculate_parking_fee(this.entry_date, this.current_time, this.parking_rate);
-    this.parking_fee = fees_duration[0];
-    this.parking_duration = fees_duration[1];
+    this.fees_duration = this.fee_calculate.calculate_parking_fee(this.entry_date, this.current_time, this.parking_rate);
+    this.parking_fee = this.fees_duration[0];
+    this.parking_duration = this.fees_duration[1];
     this.loading = false;
     setTimeout(() => {
       this.current_time = new Date()
       console.log(this.current_time);
-      fees_duration = this.fee_calculate.calculate_parking_fee(this.entry_date, this.current_time, this.parking_rate);
-      this.parking_fee = fees_duration[0];
-      this.parking_duration = fees_duration[1];
+      this.fees_duration = this.fee_calculate.calculate_parking_fee(this.entry_date, this.current_time, this.parking_rate);
+      this.parking_fee = this.fees_duration[0];
+      this.parking_duration = this.fees_duration[1];
     }, 18000000);
 
   }

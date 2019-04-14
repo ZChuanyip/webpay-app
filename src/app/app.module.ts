@@ -11,6 +11,7 @@ import { AppRoutingModule } from './/app-routing.module';
 import { NgxLoadingModule } from 'ngx-loading';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatDialogModule, MatFormFieldModule} from '@angular/material';
+import { ChartsModule } from 'ng2-charts';
 
 //componets imports
 import { AppComponent } from './app.component';
@@ -19,6 +20,7 @@ import { RegisterPageComponent } from './register-page/register-page.component';
 import { DashboardComponent,ReceiptDialogUserComponent, TopupDialogUserComponent } from './dashboard/dashboard.component';
 import { PaymentGuestComponent,ReciptDialogComponent } from './payment-guest/payment-guest.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+
 
 @NgModule({
   declarations: [
@@ -49,7 +51,8 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
     NgxLoadingModule.forRoot({}),
     BrowserAnimationsModule,
     MatDialogModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    ChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

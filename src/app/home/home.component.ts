@@ -46,6 +46,7 @@ export class HomeComponent implements OnInit {
 
    payment_as_guest(){
     this.loading= true;
+    this.carplate= this.carplate.toUpperCase();
     this.firebase.search_active_parking(this.carplate).then(
       res=>{ console.log(res)
         console.log(res["carplate"])

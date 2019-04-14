@@ -1,10 +1,15 @@
 <h5 class="text-center mt-3"> Hi {{user_data.name}} <button type="submit" class="btn btn-primary "
     (click)="logout()">Log out</button></h5>
 <div class="border border-primary my-3 p-3">
- 
+  <div class="btn-group" role="group">
+    <button type="submit" class="btn btn-primary border " (click)="change_view('homepage')">Home</button>
+    <button type="submit" class="btn btn-primary border" (click)="change_view('users')">Search User</button>
+    <button type="submit" class="btn btn-primary border" (click)="change_view('logs')">Search Access Log</button>
+    <button type="submit" class="btn btn-primary border" (click)="change_view('summary')">View Summary Report</button>
+  </div>
   <div class="bg-dark pt-1 my-2"></div>
 
-  <div>
+  <div [hidden]="not_homepage">
     <h5>Alerts</h5>
     <table class="table">
       <thead>
@@ -17,7 +22,7 @@
       <tbody>
         <tr *ngFor="let alert_item of alert ; let i = index">
           <td width="500">
-            <img [src]="alert[i].alertURL | async" (onerror)= "image_reload(i)" height="360" width="480">
+            <img [src]="alert[i].alertURL | async" (onerror)="image_reload(i)" height="360" width="480">
           </td>
 
           <td>
@@ -31,32 +36,121 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- <img [src] = "alerturl | async" height="320" width="320"> -->
+    <div style="height: 25%">
+      <!-- access log -->
+      <div class="bg-dark pt-1 my-2"></div>
+      <h5>Access_log</h5>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Access time</th>
+            <th scope="col">Gate</th>
+            <th scope="col">Car plate</th>
+            <th scope="col">Access type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log_item of log ; let i = index">
+            <td>{{log_item.time}}</td>
+            <td>{{log_item.gate}}</td>
+            <td>{{log_item.carplate}}</td>
+            <td>{{log_item.access_type}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <!-- <img [src] = "alerturl | async" height="320" width="320"> -->
-  <div>
-    <!-- access log -->
-    <div class="bg-dark pt-1 my-2"></div>
-    <h5>Access_log</h5>
+
+
+  <!--Seach user section, hidden by default except search user button clicked-->
+  <div [hidden]="not_search_userPage">
+    <h5>Search user</h5>
+    <div class="row">
+      <div class="col-3 text-center">
+        <input type="email" class="form-control" id="staticEmail" placeholder="user email" [(ngModel)]="useremail"
+          required>
+      </div>
+      <div class="col-3 text-center">
+        <button type="submit" class="btn btn-primary border " (click)="search_user_by_email()">Search user by
+          email</button>
+      </div>
+      <div class="col-3 text-center">
+        <input type="car plate" class="form-control" id="staticEmail" placeholder="Car plate number"
+          [(ngModel)]="user_carplate" required>
+      </div>
+      <div class="col-3 text-center">
+        <button type="submit" class="btn btn-primary border " (click)="search_user_by_carplate()">Search user by
+          car plate</button>
+      </div>
+    </div>
     <table class="table">
       <thead>
         <tr>
-          <th scope="col">Access time</th>
-          <th scope="col">Gate</th>
-          <th scope="col">Car plate</th>
-          <th scope="col">Access type</th>
+          <th scope="col">Email</th>
+          <th scope="col">Name</th>
+          <th scope="col">Registered car details</th>
+          <th scope="col">Balance</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let log_item of log ; let i = index">
-          <td>{{log_item.time}}</td>
-          <td>{{log_item.gate}}</td>
-          <td>{{log_item.carplate}}</td>
-          <td>{{log_item.access_type}}</td>
+      <p class="text-success font-weight-bold ml-2" [hidden]="no_result">No result found!<button type="submit" class="btn btn-primary border " (click)="reset_user_filter()">Reset filter</button>
+      </p>
+        <tr *ngFor="let user of users_search_result ; let i = index">
+          <td>{{user.email}}</td>
+          <td>{{user.name}}</td>
+          <td>
+            <table class ="table">
+              <tr>
+                  <th scope="col">Car plate</th>
+                  <th scope="col">Brand</th>
+                  <th scope="col">Colour</th>
+              </tr>
+              <tr *ngFor="let carplate of user.car_plate ; let j = index">
+                <td>{{carplate}}</td>
+                <td>{{user.car_make[j]}}</td>
+                <td>{{user.car_color[j]}}</td>
+              </tr>
+            </table>
+            
+          </td>
+          <td>{{user.balance}}</td>
         </tr>
       </tbody>
     </table>
+
+  </div>
+
+  <!--Seach access log section, hidden by default except search log button clicked-->
+  <div [hidden]="not_search_access_logPage">
+
+
+  </div>
+
+  <!--view summary section, hidden by default except view summary button clicked-->
+  <div [hidden]="not_summaryPage">
+      <div class="row">
+          <div class="col-3 text-center">
+             <input class="form-control" type="date" [(ngModel)]="daily_report">
+          </div>
+          <div class="col-3 text-center">
+            <button type="submit" class="btn btn-primary border " (click)="generate_daily_report(daily_report)">Generate Daily Report</button>
+          </div>
+      </div>
+    <div style="display: block;">
+      <canvas baseChart 
+        [datasets]="barChartData"
+        [labels]="barChartLabels"
+        [options]="barChartOptions"
+        [plugins]="barChartPlugins"
+        [legend]="barChartLegend"
+        [chartType]="barChartType">
+      </canvas>
+    </div>
   </div>
 </div>
+
 <audio #audioOption>
   <source src='../assets/alert.mp3' type="audio/mp3">
 </audio>
