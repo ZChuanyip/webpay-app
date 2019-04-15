@@ -130,24 +130,55 @@
 
   <!--view summary section, hidden by default except view summary button clicked-->
   <div [hidden]="not_summaryPage">
-      <div class="row">
-          <div class="col-3 text-center">
-             <input class="form-control" type="date" [(ngModel)]="daily_report">
-          </div>
-          <div class="col-3 text-center">
-            <button type="submit" class="btn btn-primary border " (click)="generate_daily_report(daily_report)">Generate Daily Report</button>
-          </div>
+      <div class="btn-group" role="group">
+        <button type="submit" class="btn btn-primary border " (click)="change_report_type('daily')">Daily Report</button>
+        <button type="submit" class="btn btn-primary border" (click)="change_report_type('monthly')">Monthly Report</button>
+        <button type="submit" class="btn btn-primary border" (click)="change_report_type('anual')">Annual report</button>
       </div>
+
+    <div class="row mt-3">
+      <div class="col-3 text-center">
+        <input class="form-control" type="date" [(ngModel)]="daily_report">
+        <input class="form-control" type="Month" [(ngModel)]="daily_report">
+      </div>
+      <div class="col-3 text-center">
+        <button type="submit" class="btn btn-primary border " (click)="generate_daily_report(daily_report)">Generate Daily Report</button>
+      </div>
+    </div>
     <div style="display: block;">
       <canvas baseChart 
-        [datasets]="barChartData"
-        [labels]="barChartLabels"
+        [datasets]="barChartData" 
+        [labels]="barChartLabels" 
         [options]="barChartOptions"
-        [plugins]="barChartPlugins"
-        [legend]="barChartLegend"
+        [plugins]="barChartPlugins" 
+        [legend]="barChartLegend" 
         [chartType]="barChartType">
       </canvas>
     </div>
+
+    <div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">{{report_label}}</th>
+            <th scope="col">Parking fees collected</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr *ngFor="let data of report_chart_data ; let i = index">
+            <td>{{barChartLabels[i]}}</td>
+            <td>Rm {{report_table_data[i]}}</td>
+          </tr>
+
+          <tr>
+            <td>Total</td>
+            <td>Rm {{report_total}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
 </div>
 

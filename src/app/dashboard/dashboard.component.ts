@@ -185,7 +185,6 @@ export class DashboardComponent implements OnInit {
         fee:"",
         exit_time:"",
         balance: this.user_data.balance,
-        fee_number: 0
       };
       this.loading= false;
       this.openDialog(this.receipt_detail, result, true);

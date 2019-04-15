@@ -4,6 +4,7 @@ import { FirebaseService, userdata } from '../Services/firebase.service'
 import * as moment from 'moment';
 import { ChartOptions, ChartType, ChartDataSets } from 'chart.js';
 import { Label } from 'ng2-charts';
+import { generate } from 'rxjs';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -35,19 +36,33 @@ export class AdminDashboardComponent implements OnInit {
   carplate = [];
   valid_carplate=[];
   daily_report =""
-  daily_report_chart_data = [];
+  report_chart_data = [];
+  report_table_data =[]
+  report_total:any =0;
+  report_label=""
+ 
   //charts
   public barChartOptions: ChartOptions = {
     responsive: true,
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        },
+        scaleLabel: {
+          display: true,
+          labelString: 'RM'
+        }
+      }]
+    },
+    
   };
-  public barChartLabels: Label[] = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
+  public barChartLabels: Label[] = ['4am- 12pm', '12pm-8pm', '8pm-4am'];
   public barChartType: ChartType = 'bar';
   public barChartLegend = true;
   public barChartPlugins = [];
 
-  public barChartData: ChartDataSets[] = [
-    { data: [65, 59, 80, 81, 56, 55, 40], label: 'Series A' }
-  ];
+  public barChartData: ChartDataSets[] =[ { data: [] ,label: 'Parking fee'}];
 
   //flags
   no_alert= true;
@@ -128,6 +143,7 @@ export class AdminDashboardComponent implements OnInit {
 
     console.log(moment("31/3/2019 9:6 PM","DDMMYYYYHHmmA"))
     this.daily_report = moment(new Date()).format('YYYY-MM-DD');
+    this.generate_daily_report(this.daily_report);
   }
 
 //view fuction
@@ -250,8 +266,24 @@ change_view(button_string){
     this.user_carplate = "";
   }
 
+//====================Report section=============================
+  change_report_type(report_type:string){
+    if(report_type == "annual"){
+
+    } else if (report_type == "monthly"){
+      console.log(this.daily_report)
+
+    } else {
+      this.daily_report = moment(new Date()).format('YYYY-MM-DD');
+      this.generate_daily_report(this.daily_report);
+    }
+  }
+
   generate_daily_report(date){
-    this.daily_report_chart_data = [0,0,0]
+    this.report_label = 'Time interval (' + date +')'
+    this.report_table_data=[];
+    this.report_total =0;
+    this.report_chart_data = [0,0,0]
     var moment_date = moment(date,"YYYYMMDD");
     var daily_report_subc = this.firebase.db.list("transaction_log/"+moment_date.format('M')+"_"+moment_date.format('YYYY')).valueChanges().subscribe( res=>{
       if(res != []){
@@ -260,29 +292,69 @@ change_view(button_string){
             var hour = Number(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("H"))
             console.log(res[i]['exit_time'])
             if( Number(hour) >= 4 && Number(hour) < 12 ){
-              this.daily_report_chart_data[0]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+              this.report_chart_data[0]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
             } else if( Number(hour) >= 12 && Number(hour) < 20 ){
-              this.daily_report_chart_data[1]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+              this.report_chart_data[1]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
             } else if( Number(hour) >= 20 && Number(hour) < 4 ){
-              this.daily_report_chart_data[2]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+              this.report_chart_data[2]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
             }
           }
         }
         this.barChartData= [
-          { data: this.daily_report_chart_data }
+          { data: this.report_chart_data ,label: 'Parking fee'}
         ];
-        this.barChartLabels = ['4am- 12pm', '12pm-8pm', '8pm-4am']
+        this.barChartLabels = ['4am- 12pm', '12pm-8pm', '8pm-4am'];  
+        for (var i = 0; i < this.report_chart_data.length; i++) {
+         // console.log(this.report_chart_data[1])
+          this.report_table_data.push(this.report_chart_data[i].toFixed(2));
+          this.report_total += this.report_chart_data[i];
+        }
+        this.report_total = this.report_total.toFixed(2);
         daily_report_subc.unsubscribe();
       }
-      console.log(res)
+      //console.log(res)
     })
-    console.log(moment(date,"YYYYMMDD").format('M')+"_"+moment(date,"YYYYMMDD").format('YYYY'))
-    console.log(Number(("RM 660.00 (334 hours 23 minutes)").substr(3, ("RM 668.00 (334 hours 23 minutes)").indexOf('0'))))
+     console.log(moment(date,"YYYYMMDD").format('M_YYYY'))
+    // console.log(Number(("RM 660.00 (334 hours 23 minutes)").substr(3, ("RM 668.00 (334 hours 23 minutes)").indexOf('0'))))
     
+  
   }
 
-  generate_monthly_report(){
-
+  generate_monthly_report(date){
+    this.report_label = 'Day (' + date +')'
+    this.report_table_data=[];
+    this.report_total =0;
+    this.report_chart_data = [0,0,0]
+    var moment_date = moment(date,"YYYYMMDD");
+    var daily_report_subc = this.firebase.db.list("transaction_log/"+moment_date.format('M')+"_"+moment_date.format('YYYY')).valueChanges().subscribe( res=>{
+      if(res != []){
+        for(var i =0; i< res.length; i++){
+          if(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("D") == moment_date.format('D')){
+            var hour = Number(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("H"))
+            console.log(res[i]['exit_time'])
+            if( Number(hour) >= 4 && Number(hour) < 12 ){
+              this.report_chart_data[0]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+            } else if( Number(hour) >= 12 && Number(hour) < 20 ){
+              this.report_chart_data[1]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+            } else if( Number(hour) >= 20 && Number(hour) < 4 ){
+              this.report_chart_data[2]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+            }
+          }
+        }
+        this.barChartData= [
+          { data: this.report_chart_data ,label: 'Parking fee'}
+        ];
+        this.barChartLabels = ['4am- 12pm', '12pm-8pm', '8pm-4am'];  
+        for (var i = 0; i < this.report_chart_data.length; i++) {
+         // console.log(this.report_chart_data[1])
+          this.report_table_data.push(this.report_chart_data[i].toFixed(2));
+          this.report_total += this.report_chart_data[i];
+        }
+        this.report_total = this.report_total.toFixed(2);
+        daily_report_subc.unsubscribe();
+      }
+      //console.log(res)
+    })
   }
 
   generate_yearly_report(){
