@@ -124,8 +124,61 @@
 
   <!--Seach access log section, hidden by default except search log button clicked-->
   <div [hidden]="not_search_access_logPage">
+    <div class = "form-row">
+        <div class="Row text-center">
+            <label class="font-weight-bold" >Date: </label>
+          </div>
+    
+      <div class="col text-center">
+         
+         <input class="form-control" type="date" [(ngModel)]="access_log_date">
+      </div>
+      <div class="Row text-center">
+          <label class="font-weight-bold" > Time Range: </label>
+        </div>
+      <div class="col text-center">
+       <input class="form-control" type="time" [(ngModel)]="access_log_start_time">
+      </div>
+      <div class="Row text-center">
+          <label class="font-weight-bold" > to </label>
+        </div>
+    
+      <div class="col text-center">
+      <input class="form-control" type="time" [(ngModel)]="access_log_end_time">
+      </div>
 
+      <div class="col text-center">
+          <button type="submit" class="btn btn-primary border " (click)="search_access_log()">Search</button>
 
+      </div>
+    </div>
+      <p class="text-success font-weight-bold ml-2" [hidden]="!invalid_time_range">Invalid date!</p>
+
+      <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Gate name</th>
+              <th scope="col">Access type</th>
+              <th scope="col">Time</th>
+              <th scope="col">Car plate</th>
+              <th scope="col">Car colour</th>
+              <th scope="col">Car brand</th>
+            </tr>
+          </thead>
+          <tbody>
+          <p class="text-success font-weight-bold ml-2" [hidden]="!no_access_log_result">No result found!</p>
+            <tr *ngFor="let user of access_log_search_result ; let i = index">
+              <td>{{user.gate}}</td>
+              <td>{{user.access_type}}</td>
+              <td>{{user.time}}</td>
+              <td>{{user.carplate}}</td>
+              <td>{{user.car_color}}</td>
+              <td>{{user.car_make}}</td>
+            </tr>
+          </tbody>
+        </table>
+     
+    
   </div>
 
   <!--view summary section, hidden by default except view summary button clicked-->
@@ -133,19 +186,19 @@
       <div class="btn-group" role="group">
         <button type="submit" class="btn btn-primary border " (click)="change_report_type('daily')">Daily Report</button>
         <button type="submit" class="btn btn-primary border" (click)="change_report_type('monthly')">Monthly Report</button>
-        <button type="submit" class="btn btn-primary border" (click)="change_report_type('anual')">Annual report</button>
+        <button type="submit" class="btn btn-primary border" (click)="change_report_type('annual')">Annual report</button>
       </div>
 
     <div class="row mt-3">
       <div class="col-3 text-center">
-        <input class="form-control" type="date" [(ngModel)]="daily_report">
-        <input class="form-control" type="Month" [(ngModel)]="monthly_report">
-        <input class="form-control" type="number" [(ngModel)]="annual_report">
+        <input class="form-control" type="date" [(ngModel)]="daily_report" [hidden]= "not_daily">
+        <input class="form-control" type="Month" [(ngModel)]="monthly_report" [hidden]= "not_monthly">
+        <input class="form-control" type="number" [(ngModel)]="annual_report" [hidden]= "not_annual">
       </div>
       <div class="col-3 text-center">
-        <button type="submit" class="btn btn-primary border " (click)="generate_daily_report(daily_report)">Generate Daily Report</button>
-        <button type="submit" class="btn btn-primary border " (click)="generate_monthly_report(monthly_report, false)">Generate Monthly Report</button>
-        <button type="submit" class="btn btn-primary border " (click)="generate_yearly_report(annual_report)">Generate Annual Report</button>
+        <button type="submit" class="btn btn-primary border " (click)="generate_daily_report(daily_report)" [hidden]= "not_daily">Generate Daily Report</button>
+        <button type="submit" class="btn btn-primary border " (click)="generate_monthly_report(monthly_report, false)" [hidden]= "not_monthly">Generate Monthly Report</button>
+        <button type="submit" class="btn btn-primary border " (click)="generate_yearly_report(annual_report)" [hidden]= "not_annual">Generate Annual Report</button>
       </div>
     </div>
     <div style="display: block;">

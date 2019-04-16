@@ -36,6 +36,12 @@ export class AdminDashboardComponent implements OnInit {
   carplate = [];
   valid_carplate=[];
 
+  //date and time for search access log section
+  access_log_date = "";
+  access_log_start_time = "";
+  access_log_end_time = "";
+  access_log_search_result =[];
+
   //date for report
   daily_report ="";
   monthly_report ="";
@@ -78,7 +84,13 @@ export class AdminDashboardComponent implements OnInit {
   not_search_userPage = true;
   not_search_access_logPage = true;
   not_summaryPage = true;
-
+  //access log flag
+  invalid_time_range = false;
+  no_access_log_result = false;
+  //report flag
+  not_daily = false;
+  not_monthly = true;
+  not_annual = true
 
   @ViewChild('audioOption') audioPlayerRef: ElementRef;
 
@@ -149,6 +161,8 @@ export class AdminDashboardComponent implements OnInit {
 
    // console.log(moment("31/3/2019 9:6 PM","DDMMYYYYHHmmA"))
     this.daily_report = moment(new Date()).format('YYYY-MM-DD');
+    this.access_log_date = moment(new Date()).format('YYYY-MM-DD');
+
     this.monthly_report = moment(new Date()).format('YYYY-MM');
     this.annual_report = moment(new Date()).format('YYYY');
     //initialize today report by default
@@ -275,20 +289,73 @@ change_view(button_string){
     this.user_carplate = "";
   }
 
+//====================search Access log sectiob =================
+
+search_access_log(){
+  this.loading = true;
+  this.access_log_search_result =[];
+  var moment_date = moment(this.access_log_date, 'YYYYMMDD');
+  var start_time = moment(this.access_log_start_time,"HHmmA");
+  var end_time = moment(this.access_log_end_time,"HHmmA");
+
+  if(start_time.isBefore(end_time)){
+    this.invalid_time_range = false;
+    
+  } else {
+    this.invalid_time_range = true;
+    return;
+  }
+  var log_time
+  var daily_report_subc = this.firebase.db.list("access_log/"+moment_date.format('YYYY_M_D')).valueChanges().subscribe( res=>{
+    console.log(res)
+    if(res != []){
+      for(var i =0; i< res.length; i++){
+        log_time = moment(res[i]['time'], 'HHmmSS')
+        if( log_time.isAfter(start_time) && log_time.isBefore(end_time)){
+          this.access_log_search_result.push(res[i])
+        }
+
+      }
+
+    }   
+    if(this.access_log_search_result.length ==0 || res.length ==0){
+        this.no_access_log_result = true;
+      } else {
+        this.no_access_log_result = false;
+      }
+    this.loading = false;
+    daily_report_subc.unsubscribe();
+    //console.log(res)
+  })
+}
+
 //====================Report section=============================
   change_report_type(report_type:string){
     if(report_type == "annual"){
-
+      this.not_daily = true;
+      this.not_monthly = true;
+      this.not_annual = false;
+      this.annual_report = moment(new Date()).format('YYYY');
+      this.generate_yearly_report(this.annual_report);
+  
     } else if (report_type == "monthly"){
-      console.log(this.daily_report)
+      this.not_daily = true;
+      this.not_monthly = false;
+      this.not_annual = true;
+      this.monthly_report = moment(new Date()).format('YYYY-MM');
+      this.generate_monthly_report(this.monthly_report, false);
 
     } else {
+      this.not_daily = false;
+      this.not_monthly = true;
+      this.not_annual = true;
       this.daily_report = moment(new Date()).format('YYYY-MM-DD');
       this.generate_daily_report(this.daily_report);
     }
   }
 
   generate_daily_report(date){
+    this.loading = true;
     this.report_label = 'Time interval (' + date +')'
     this.report_table_data=[];
     this.report_total =0;
@@ -320,16 +387,18 @@ change_view(button_string){
         }
         this.report_total = this.report_total.toFixed(2);
         daily_report_subc.unsubscribe();
+        this.loading = false;
       }
       //console.log(res)
     })
-     console.log(moment(date,"YYYYMMDD").format('M_YYYY'))
+     //console.log(moment(date,"YYYYMMDD").format('M_YYYY'))
     // console.log(Number(("RM 660.00 (334 hours 23 minutes)").substr(3, ("RM 668.00 (334 hours 23 minutes)").indexOf('0'))))
     
   
   }
 
   generate_monthly_report(date, is_annual_report){
+    this.loading = true;
     var daysInMonth = moment(date,"YYYYMM").daysInMonth();
 
     // this.days_in_month =[];
@@ -381,13 +450,14 @@ change_view(button_string){
           for (var i = 0; i < this.report_chart_data.length; i++) {
             // console.log(this.report_chart_data[1])
             this.report_table_data.push(this.report_chart_data[i].toFixed(2));
-            this.report_total += this.report_chart_data[i];
-            this.report_total = this.report_total.toFixed(2);
+            this.report_total = this.report_total + Number(this.report_chart_data[i]);
           }
+          this.report_total = Number(this.report_total).toFixed(2);
          
         }  else{
           this.report_table_data.push(this.report_chart_data[Number(moment_date.format('M'))-1].toFixed(2));
           this.report_total += this.report_chart_data[Number(moment_date.format('M'))-1];
+
           if(Number(moment_date.format('M')) == 12){
             this.barChartData = [
               { data: this.report_chart_data, label: 'Parking fee' }
@@ -397,6 +467,7 @@ change_view(button_string){
         }
         
         daily_report_subc.unsubscribe();
+        this.loading = false;
       }
       console.log(date,res)
     })
