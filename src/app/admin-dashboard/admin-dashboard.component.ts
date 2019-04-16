@@ -35,13 +35,20 @@ export class AdminDashboardComponent implements OnInit {
   today:string;
   carplate = [];
   valid_carplate=[];
-  daily_report =""
+
+  //date for report
+  daily_report ="";
+  monthly_report ="";
+  days_in_month =[];
+  annual_report ="";
+
+  //report charts and table data/label
   report_chart_data = [];
   report_table_data =[]
   report_total:any =0;
   report_label=""
  
-  //charts
+  //charts.js attributes
   public barChartOptions: ChartOptions = {
     responsive: true,
     scales: {
@@ -61,7 +68,6 @@ export class AdminDashboardComponent implements OnInit {
   public barChartType: ChartType = 'bar';
   public barChartLegend = true;
   public barChartPlugins = [];
-
   public barChartData: ChartDataSets[] =[ { data: [] ,label: 'Parking fee'}];
 
   //flags
@@ -141,8 +147,11 @@ export class AdminDashboardComponent implements OnInit {
     //   this.transaction_logs = transaction;
     // })
 
-    console.log(moment("31/3/2019 9:6 PM","DDMMYYYYHHmmA"))
+   // console.log(moment("31/3/2019 9:6 PM","DDMMYYYYHHmmA"))
     this.daily_report = moment(new Date()).format('YYYY-MM-DD');
+    this.monthly_report = moment(new Date()).format('YYYY-MM');
+    this.annual_report = moment(new Date()).format('YYYY');
+    //initialize today report by default
     this.generate_daily_report(this.daily_report);
   }
 
@@ -320,44 +329,91 @@ change_view(button_string){
   
   }
 
-  generate_monthly_report(date){
-    this.report_label = 'Day (' + date +')'
-    this.report_table_data=[];
-    this.report_total =0;
-    this.report_chart_data = [0,0,0]
-    var moment_date = moment(date,"YYYYMMDD");
+  generate_monthly_report(date, is_annual_report){
+    var daysInMonth = moment(date,"YYYYMM").daysInMonth();
+
+    // this.days_in_month =[];
+  
+    if (is_annual_report == false) {  
+      this.report_chart_data = [];
+      this.barChartLabels=[]
+      for (var i = 1; i <= daysInMonth; i++) {
+        //get all possible day in date
+        this.barChartLabels.push(i.toString());
+        this.report_chart_data.push(0);
+      }
+      this.report_label = 'Day (' + date + ')'
+      this.report_table_data = [];
+      this.report_total = 0;
+    }
+
+    var moment_date = moment(date,"YYYYMM");
     var daily_report_subc = this.firebase.db.list("transaction_log/"+moment_date.format('M')+"_"+moment_date.format('YYYY')).valueChanges().subscribe( res=>{
       if(res != []){
-        for(var i =0; i< res.length; i++){
-          if(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("D") == moment_date.format('D')){
-            var hour = Number(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("H"))
-            console.log(res[i]['exit_time'])
-            if( Number(hour) >= 4 && Number(hour) < 12 ){
-              this.report_chart_data[0]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
-            } else if( Number(hour) >= 12 && Number(hour) < 20 ){
-              this.report_chart_data[1]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
-            } else if( Number(hour) >= 20 && Number(hour) < 4 ){
-              this.report_chart_data[2]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
-            }
+       
+        for(var i =0; i< res.length; i++){ 
+          if(is_annual_report == false){
+            //for monthly report onlu
+            // console.log(Number(moment("2019-4","YYYYMM").format("M")))
+            this.report_chart_data[Number(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("D"))-1] += Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+          } else {
+            //for anual report loop
+            this.report_chart_data[Number(moment_date.format('M'))-1] += Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')));
+          }
+          // if(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("D") == moment_date.format('D')){
+          //   var hour = Number(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("H"))
+          //   console.log(res[i]['exit_time'])
+          //   if( Number(hour) >= 4 && Number(hour) < 12 ){
+          //     this.report_chart_data[0]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+          //   } else if( Number(hour) >= 12 && Number(hour) < 20 ){
+          //     this.report_chart_data[1]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+          //   } else if( Number(hour) >= 20 && Number(hour) < 4 ){
+          //     this.report_chart_data[2]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
+          //   }
+          // }
+        }
+
+        if (is_annual_report == false) {
+          //prevent excessive loop for annual report
+          this.barChartData = [
+            { data: this.report_chart_data, label: 'Parking fee' }
+          ];
+          for (var i = 0; i < this.report_chart_data.length; i++) {
+            // console.log(this.report_chart_data[1])
+            this.report_table_data.push(this.report_chart_data[i].toFixed(2));
+            this.report_total += this.report_chart_data[i];
+            this.report_total = this.report_total.toFixed(2);
+          }
+         
+        }  else{
+          this.report_table_data.push(this.report_chart_data[Number(moment_date.format('M'))-1].toFixed(2));
+          this.report_total += this.report_chart_data[Number(moment_date.format('M'))-1];
+          if(Number(moment_date.format('M')) == 12){
+            this.barChartData = [
+              { data: this.report_chart_data, label: 'Parking fee' }
+            ];
+            this.report_total = this.report_total.toFixed(2);
           }
         }
-        this.barChartData= [
-          { data: this.report_chart_data ,label: 'Parking fee'}
-        ];
-        this.barChartLabels = ['4am- 12pm', '12pm-8pm', '8pm-4am'];  
-        for (var i = 0; i < this.report_chart_data.length; i++) {
-         // console.log(this.report_chart_data[1])
-          this.report_table_data.push(this.report_chart_data[i].toFixed(2));
-          this.report_total += this.report_chart_data[i];
-        }
-        this.report_total = this.report_total.toFixed(2);
+        
         daily_report_subc.unsubscribe();
       }
-      //console.log(res)
+      console.log(date,res)
     })
   }
 
-  generate_yearly_report(){
+  generate_yearly_report(year){
+    this.report_chart_data = [0,0,0,0,0,0,0,0,0,0,0,0];
+    this.report_table_data = [];
+    this.report_total =0;
+    for(var i =1; i<13; i++){
+      this.generate_monthly_report((year+"-"+i), true);
+    }
 
+    this.report_label = 'Month (' + year + ')'
+
+    this.barChartLabels = ['January','February','March', 'April', 'May', 'June', 'July', 'August', 'September', 'October','November','December'];  
+
+    
   }
 }

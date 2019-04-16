@@ -139,10 +139,13 @@
     <div class="row mt-3">
       <div class="col-3 text-center">
         <input class="form-control" type="date" [(ngModel)]="daily_report">
-        <input class="form-control" type="Month" [(ngModel)]="daily_report">
+        <input class="form-control" type="Month" [(ngModel)]="monthly_report">
+        <input class="form-control" type="number" [(ngModel)]="annual_report">
       </div>
       <div class="col-3 text-center">
         <button type="submit" class="btn btn-primary border " (click)="generate_daily_report(daily_report)">Generate Daily Report</button>
+        <button type="submit" class="btn btn-primary border " (click)="generate_monthly_report(monthly_report, false)">Generate Monthly Report</button>
+        <button type="submit" class="btn btn-primary border " (click)="generate_yearly_report(annual_report)">Generate Annual Report</button>
       </div>
     </div>
     <div style="display: block;">
@@ -172,8 +175,8 @@
           </tr>
 
           <tr>
-            <td>Total</td>
-            <td>Rm {{report_total}}</td>
+            <td class="font-weight-bold">Total</td>
+            <td class="font-weight-bold">Rm {{report_total}}</td>
           </tr>
         </tbody>
       </table>
