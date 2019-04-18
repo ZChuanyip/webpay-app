@@ -124,9 +124,9 @@ export class DashboardComponent implements OnInit {
   pay_user(index){
   
     var date = new Date();
-    var entry_time = new Date(this.user_active_parking[this.user_active_parking.length-1]["timestamp"]*1000);
+    var entry_time = new Date(this.user_active_parking[index]["timestamp"]*1000);
     var fee = this.feeCalc.return_fee(entry_time, date, this.parking_rate);
-    console.log(fee, fee > this.receipt_detail.balance,this.receipt_detail.balance)
+    console.log("FEEEE!!",fee, fee > this.receipt_detail.balance,this.receipt_detail.balance)
     if(fee > this.user_data.balance){
       alert("Insufficient balance, please top up!");
       return;
