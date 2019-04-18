@@ -174,6 +174,10 @@ export class DashboardComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log("topup:",result);
       this.loading= true;
+      if(isNaN(Number(result))){
+        this.loading = false;
+        return;
+      }
       this.user_data.balance = this.user_data.balance+ Number(result);
       this.firebase.topup_balance(this.user_data.balance, this.user_data.uid);
       var date = new Date();

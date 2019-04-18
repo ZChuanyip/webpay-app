@@ -58,7 +58,7 @@
             <p> Expire date :</p>
         </div>
         <div class="col-6">
-            <input class="form-control" required type="number" minlength="5" maxlength="5" placeholder="MM/YY"
+            <input class="form-control" required type="text" minlength="5" maxlength="5" placeholder="MM/YY"
                 [(ngModel)]="exp_date" (change)="validate_date()">
             <div class="text-danger" [hidden]="valid_date">Please enter exp date using MM/YY format</div>
         </div>

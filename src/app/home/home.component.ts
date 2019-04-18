@@ -138,6 +138,7 @@ export class Reset_passwordComponent {
     @Inject(MAT_DIALOG_DATA) public data) {}
   
   email = this.data.email;
+  successful = false;
 
   onNoClick(): void {
     this.dialogRef.close();
@@ -146,5 +147,6 @@ export class Reset_passwordComponent {
   print(): void {
     console.log(this.email)
     this.firebase.reset_password(this.email);
+    this.successful = true;
   }
 }
