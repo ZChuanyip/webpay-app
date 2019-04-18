@@ -9,13 +9,13 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './/app-routing.module';
 import { NgxLoadingModule } from 'ngx-loading';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatDialogModule, MatFormFieldModule} from '@angular/material';
+import { BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { MatDialogModule, MatFormFieldModule} from '@angular/material';
 import { ChartsModule } from 'ng2-charts';
 
 //componets imports
 import { AppComponent } from './app.component';
-import { HomeComponent } from './home/home.component';
+import { HomeComponent, Reset_passwordComponent } from './home/home.component';
 import { RegisterPageComponent } from './register-page/register-page.component';
 import { DashboardComponent,ReceiptDialogUserComponent, TopupDialogUserComponent } from './dashboard/dashboard.component';
 import { PaymentGuestComponent,ReciptDialogComponent } from './payment-guest/payment-guest.component';
@@ -32,12 +32,14 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
     ReciptDialogComponent,
     ReceiptDialogUserComponent,
     TopupDialogUserComponent,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    Reset_passwordComponent
   ],
   entryComponents: [
     ReciptDialogComponent, 
     ReceiptDialogUserComponent,
-    TopupDialogUserComponent
+    TopupDialogUserComponent,
+    Reset_passwordComponent
   ],
   imports: [
     BrowserModule,

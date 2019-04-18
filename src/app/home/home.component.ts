@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit ,Inject} from '@angular/core';
 import {FirebaseService} from '../Services/firebase.service'
 import { Observable } from 'rxjs';
 import {Router} from '@angular/router';
+import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+import { database } from 'firebase';
 //import { FormGroup, FormBuilder, Validators, EmailValidator } from '@angular/forms';
 
 @Component({
@@ -23,7 +25,7 @@ export class HomeComponent implements OnInit {
   password='';
   carplate = "";
 
-  constructor(private firebase: FirebaseService, private route:Router) { }
+  constructor(private firebase: FirebaseService, private route:Router,  public dialog: MatDialog) { }
 
   ngOnInit() {
     //this.firebase.login('chuancane@yahoo.com.my','qwert123');
@@ -107,9 +109,42 @@ export class HomeComponent implements OnInit {
 
   }
 
+  openDialog(): void {
+    this.dialog.open(Reset_passwordComponent, {
+      width: '800px',
+      data: {
+        user_email: this.email
+      }
+    });
+  }
+
 reset_password(){
   console.log(this.email);
   this.firebase.reset_password(this.email);
 }
   
+}
+
+
+@Component({
+  selector: 'app-reset_password',
+  templateUrl: 'reset_password.component.html',
+})
+export class Reset_passwordComponent {
+
+  constructor(
+    private firebase: FirebaseService,
+    public dialogRef: MatDialogRef<Reset_passwordComponent>,
+    @Inject(MAT_DIALOG_DATA) public data) {}
+  
+  email = this.data.email;
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+  
+  print(): void {
+    console.log(this.email)
+    this.firebase.reset_password(this.email);
+  }
 }
