@@ -303,6 +303,7 @@ search_access_log(){
     
   } else {
     this.invalid_time_range = true;
+    this.loading = false;
     return;
   }
   var log_time
@@ -424,6 +425,7 @@ search_access_log(){
           if(is_annual_report == false){
             //for monthly report onlu
             // console.log(Number(moment("2019-4","YYYYMM").format("M")))
+            console.log(this.report_chart_data[Number(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("D"))-1], (res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
             this.report_chart_data[Number(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("D"))-1] += Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
           } else {
             //for anual report loop
