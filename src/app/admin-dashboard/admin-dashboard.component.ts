@@ -4,7 +4,7 @@ import { FirebaseService, userdata } from '../Services/firebase.service'
 import * as moment from 'moment';
 import { ChartOptions, ChartType, ChartDataSets } from 'chart.js';
 import { Label } from 'ng2-charts';
-import { generate } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -35,7 +35,7 @@ export class AdminDashboardComponent implements OnInit {
   today:string;
   carplate = [];
   valid_carplate=[];
-
+  imagealert:ImageData
   //date and time for search access log section
   access_log_date = "";
   access_log_start_time = "";
@@ -94,7 +94,7 @@ export class AdminDashboardComponent implements OnInit {
 
   @ViewChild('audioOption') audioPlayerRef: ElementRef;
 
-  constructor(private route:Router, private router: ActivatedRoute, private firebase:FirebaseService) { 
+  constructor(private route:Router, private router: ActivatedRoute, private firebase:FirebaseService, private http:HttpClient) { 
     this.router.params.subscribe( params => this.admin = params.validator );
   }
 
@@ -119,11 +119,15 @@ export class AdminDashboardComponent implements OnInit {
       this.carplate =[];
       this.alert = alert_data;
       console.log(alert_data)
-      for(var i = 0; i< this.alert.length; i++){
-        this.alert[i].alertURL = this.firebase.get_alert_image(this.alert[i].image_path);
-        this.carplate.push("");
-        this.valid_carplate.push(true);
-      }
+      //delay 1.5seconds due image requires time for upload
+      this.delay(this.alert,500).then(alert => {
+          for(var i = 0; i< this.alert.length; i++){
+          this.alert[i].alertURL = this.firebase.get_alert_image(alert[i].image_path);
+          this.carplate.push("");
+          this.valid_carplate.push(true); 
+          }
+       })  
+   
       //no alert
       if(this.alert.length == 0){
         this.no_alert = false;
@@ -221,12 +225,12 @@ change_view(button_string){
     this.route.navigateByUrl("home");
   }
 
-  delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
+  delay(alert, ms: number):Promise<any> {
+    return new Promise<string>(resolve => setTimeout(resolve, ms)).then(() => { return alert })
   }
 
   image_reload(index){
-    this.delay(1000);
+    //this.delay(1000);
     this.alert[index].alertURL = this.alert[index].alertURL+"#";
   }
 
@@ -367,12 +371,12 @@ search_access_log(){
         for(var i =0; i< res.length; i++){
           if(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("D") == moment_date.format('D')){
             var hour = Number(moment(res[i]['exit_time'],"DDMMYYYYHHmmA").format("H"))
-            console.log(res[i]['exit_time'])
+            //console.log(res[i]['exit_time'], hour)
             if( Number(hour) >= 4 && Number(hour) < 12 ){
               this.report_chart_data[0]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
             } else if( Number(hour) >= 12 && Number(hour) < 20 ){
               this.report_chart_data[1]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
-            } else if( Number(hour) >= 20 && Number(hour) < 4 ){
+            } else if( Number(hour) >= 20 || Number(hour) < 4 ){
               this.report_chart_data[2]+= Number((res[i]['fee']).substr(3, res[i]['fee'].indexOf('0')))
             }
           }
