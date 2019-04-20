@@ -99,7 +99,6 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   async ngOnInit() {
-    
     await this.firebase.get_user().subscribe(res => {
       this.user_data = res;
       if(this.user_data.uid == undefined || this.user_data.uid ==""){
@@ -145,6 +144,7 @@ export class AdminDashboardComponent implements OnInit {
         this.log= log;
         this.bubbleSort(this.log);
         this.log.reverse();
+        console.log(log)
         //this.log = this.bubble_sort(this.log);
       }
       // console.log(moment("11:11:11","HHmmSS").isAfter(moment("11:11:05","HHmmSS")))
@@ -218,6 +218,16 @@ change_view(button_string){
         timestamp: date.getTime()/1000
       });
     }
+    this.firebase.db.object('access_log/'+this.today).set({
+      access_type: this.alert[index].access_type,
+      carplate: this.carplate[index],
+      car_color:"",
+      car_make: "",
+      gate: this.alert[index].gate,
+      time: moment().format("HH:mm:SS")
+    })
+
+    
   }
 
   logout(){
