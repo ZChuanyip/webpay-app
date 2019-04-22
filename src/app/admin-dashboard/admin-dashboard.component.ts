@@ -217,6 +217,17 @@ change_view(button_string){
         payment_status:false,
         timestamp: date.getTime()/1000
       });
+    } else{
+      //exit ,delte active parking
+      var active_parkingRef = this.firebase.db.object('active_parking/'+this.carplate[index]).valueChanges();
+      active_parkingRef.subscribe(res=>{
+        if(res['payment_status'] == true){
+           this.firebase.db.object('active_parking/'+this.carplate[index]).remove();
+        } else {
+          alert(this.carplate[index]+' not yet pay parking fee')
+        }
+      })
+     
     }
     this.firebase.db.object('access_log/'+this.today).set({
       access_type: this.alert[index].access_type,
