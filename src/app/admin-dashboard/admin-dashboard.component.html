@@ -201,7 +201,7 @@
         <button type="submit" class="btn btn-primary border " (click)="generate_yearly_report(annual_report)" [hidden]= "not_annual">Generate Annual Report</button>
       </div>
     </div>
-    <div style="display: block;">
+    <div style="">
       <canvas baseChart 
         [datasets]="barChartData" 
         [labels]="barChartLabels" 
@@ -233,6 +233,7 @@
           </tr>
         </tbody>
       </table>
+      <button class="btn btn-primary border" (click) ="print()" >Print Report</button>
     </div>
 
   </div>

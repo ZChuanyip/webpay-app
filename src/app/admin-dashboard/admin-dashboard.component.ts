@@ -140,6 +140,7 @@ export class AdminDashboardComponent implements OnInit {
     this.today = date.getFullYear()+"_"+(date.getMonth()+1)+"_"+date.getDate();
     console.log(this.today)
     this.firebase.db.list('access_log/'+this.today,  ref => ref.orderByChild("time").limitToFirst(10)).valueChanges().subscribe(log =>{
+      console.log('logs:',log)
       if(log != undefined){
         this.log= log;
         this.bubbleSort(this.log);
@@ -234,7 +235,7 @@ change_view(button_string){
       })
      
     }
-    this.firebase.db.object('access_log/'+this.today).set({
+    this.firebase.db.object('access_log/'+this.today+'/'+moment().format("HH:mm:SS")+this.alert[index].gate).set({
       access_type: this.alert[index].access_type,
       carplate: this.carplate[index],
       car_color:"",
@@ -518,5 +519,9 @@ search_access_log(){
     this.barChartLabels = ['January','February','March', 'April', 'May', 'June', 'July', 'August', 'September', 'October','November','December'];  
 
     
+  }
+
+  print(): void {
+    window.print();
   }
 }
