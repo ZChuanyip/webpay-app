@@ -207,10 +207,10 @@ change_view(button_string){
       this.valid_carplate[index] = true;
     }
     this.firebase.db.list('alert').remove(this.alert[index].time+"_"+this.alert[index].gate);
-    this.firebase.db.object('gate_access/'+this.alert[index].gate).set(true);
     var date = new Date();
     console.log(this.alert[index].access_type)
     if(this.alert[index].access_type == "Entry"){
+      this.firebase.db.object('gate_access/'+this.alert[index].gate).set(true);
       this.firebase.db.object('active_parking/'+this.carplate[index]).set({
         carplate: this.carplate[index],
         car_color:"",
@@ -223,6 +223,7 @@ change_view(button_string){
       //exit ,delte active parking
       var active_parkingRef = this.firebase.db.object('active_parking/'+this.carplate[index]).valueChanges().subscribe(res=>{
         if(res['payment_status'] == true){
+          this.firebase.db.object('gate_access/'+this.alert[index].gate).set(true);
           active_parkingRef.unsubscribe();
           console.log(res)
            this.firebase.db.list('active_parking').remove(res['carplate']);
